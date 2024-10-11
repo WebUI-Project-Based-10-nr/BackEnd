@@ -1,7 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
-const swaggerSetup = require('~/routes/swagger')
+const swaggerSetup = require('~/routes/swaggerSetup')
 
 const options = {
   definition: {

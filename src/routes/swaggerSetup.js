@@ -3,7 +3,6 @@ const swaggerUI = require('swagger-ui-express')
 
 const swaggerSetup = (app) => {
   const swaggerOptions = app.get('swaggerOptions')
-  console.log(swaggerOptions)
 
   if (!swaggerOptions) {
     throw new Error('Swagger options not found in app settings.')
