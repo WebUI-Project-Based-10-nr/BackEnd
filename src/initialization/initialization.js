@@ -1,8 +1,7 @@
 const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
-const swaggerJSDoc = require('swagger-jsdoc')
-const swaggerUI = require('swagger-ui-express')
+const swaggerSetup = require('~/routes/swagger')
 
 const options = {
   definition: {
@@ -17,10 +16,8 @@ const options = {
       }
     ]
   },
-  apis: ['./src/routes/*.js']
+  apis: ['~/routes/*.js']
 }
-
-const swaggerSpec = swaggerJSDoc(options)
 
 const {
   config: { CLIENT_URL }
@@ -44,7 +41,7 @@ const initialization = (app) => {
 
   app.set('swaggerOptions', options)
 
-  app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec))
+  swaggerSetup(app)
 
   app.use('/', router)
 
