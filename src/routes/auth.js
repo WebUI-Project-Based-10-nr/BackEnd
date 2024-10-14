@@ -18,6 +18,26 @@ router.post(
   asyncWrapper(authController.signup)
 )
 
+/**
+ * @swagger
+ * /auth/google-auth:
+ *   post:
+ *     summary: Authenticate with Google OAuth
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               token:
+ *                 type: object
+ *               role:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Google OAuth successful
+ */
 router.post(
   '/google-auth',
   validationMiddleware(googleAuthValidationSchema),
