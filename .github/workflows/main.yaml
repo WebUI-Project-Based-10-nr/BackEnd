@@ -43,7 +43,7 @@ jobs:
         run: npm run test
         env:
           NODE_OPTIONS: --max_old_space_size=4096
-          MONGODB_URL: mongodb://${{secrets.MONGODB_USER}}:${{secrets.MONGODB_PASS}}@cluster0.jqmmo.mongodb.net/${{secrets.MONGODB_DB}}?authSource=admin
+          MONGODB_URL: mongodb://${{secrets.MONGODB_USER}}:${{secrets.MONGODB_PASS}}@cluster0.jqmmo.mongodb.net/${{secrets.MONGODB_DB}}?retryWrites=true&w=majority
           JWT_ACCESS_SECRET: ${{secrets.JWT_ACCESS_SECRET}}
           JWT_REFRESH_SECRET: ${{secrets.JWT_REFRESH_SECRET}}
           JWT_RESET_SECRET: ${{secrets.JWT_RESET_SECRET}}
