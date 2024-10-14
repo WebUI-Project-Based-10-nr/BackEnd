@@ -1,6 +1,23 @@
 const express = require('express')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
+const swaggerSetup = require('~/routes/swaggerSetup')
+
+const options = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Space2Study project API',
+      version: '1.0.0'
+    },
+    servers: [
+      {
+        url: 'http://localhost:8080'
+      }
+    ]
+  },
+  apis: ['src/routes/*.js']
+}
 
 const {
   config: { CLIENT_URL }
@@ -21,6 +38,10 @@ const initialization = (app) => {
       allowedHeaders: 'Content-Type, Authorization'
     })
   )
+
+  app.set('swaggerOptions', options)
+
+  swaggerSetup(app)
 
   app.use('/', router)
 
