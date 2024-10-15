@@ -39,18 +39,15 @@ const authService = {
     })
     const { email, given_name, family_name, sub } = ticket.getPayload()
 
-    if (role) {
-      let user = await getUserByEmail(email)
-      if (!user) {
-        await createUser(role, given_name, family_name, email, sub, language, true)
-      }
-    }
+    let user = await getUserByEmail(email)
 
-    return module.exports.login(email, sub, true)
+    if (!user && role) user = await createUser(role, given_name, family_name, email, sub, language, true)
+
+    return module.exports.login(email, sub, true, user)
   },
 
-  login: async (email, password, isFromGoogle) => {
-    const user = await getUserByEmail(email)
+  login: async (email, password, isFromGoogle, user) => {
+    if (!user) user = await getUserByEmail(email)
 
     if (!user) {
       throw createError(401, USER_NOT_FOUND)
