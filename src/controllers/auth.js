@@ -24,6 +24,16 @@ const signup = async (req, res) => {
   res.status(201).json(userData)
 }
 
+const googleAuth = async (req, res) => {
+  const { token, role } = req.body
+  const tokens = await authService.googleAuth(token.credential, role, req.lang)
+
+  res.cookie(ACCESS_TOKEN, tokens.accessToken, COOKIE_OPTIONS)
+  res.cookie(REFRESH_TOKEN, tokens.refreshToken, COOKIE_OPTIONS)
+
+  res.status(200).json({ accessToken: tokens.accessToken })
+}
+
 const login = async (req, res) => {
   const { email, password } = req.body
 
@@ -88,6 +98,7 @@ const updatePassword = async (req, res) => {
 
 module.exports = {
   signup,
+  googleAuth,
   login,
   logout,
   refreshAccessToken,
