@@ -1,30 +1,27 @@
-const { serverInit, serverCleanup, stopServer } = require('~/test/setup')
+const errors = require('~/consts/errors');
 const {
   lengths: { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH },
   enums: { ROLE_ENUM }
-} = require('~/consts/validation')
-const errors = require('~/consts/errors')
-const tokenService = require('~/services/token')
-const Token = require('~/models/token')
+} = require('~/consts/validation');
 const { expectError } = require('~/test/helpers')
+const Token = require('~/models/token')
+const tokenService = require('~/services/token')
+const { serverInit, serverCleanup, stopServer } = require('~/test/setup')
 
 describe('Auth controller', () => {
-  let app, server, signupResponse
+  let app, signupResponse
 
   beforeAll(async () => {
-    ({ app, server } = await serverInit())
+    ({ app } = await serverInit())
   })
 
   beforeEach(async () => {
     signupResponse = await app.post('/auth/signup').send(user)
-  })
+    jest.clearAllMocks()
+  });
 
   afterEach(async () => {
     await serverCleanup()
-  })
-
-  afterAll(async () => {
-    await stopServer(server)
   })
 
   const user = {
