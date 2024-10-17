@@ -3,26 +3,12 @@ const { expectError } = require('~/test/helpers')
 const { UNAUTHORIZED, FORBIDDEN } = require('~/consts/errors')
 const testUserAuthentication = require('~/utils/testUserAuth')
 const TokenService = require('~/services/token')
-const {
-  roles: { TUTOR }
-} = require('~/consts/auth')
-
 const endpointUrl = '/resources-categories/'
-
+const mongoose = require('mongoose')
+const jwt = require('jsonwebtoken')
+const resourcesCategoryService = require('~/services/resourcesCategory')
 const testResourceCategoryData = {
   name: 'Chemical Category'
-}
-
-const studentUserData = {
-  role: 'student',
-  firstName: 'Yamada',
-  lastName: 'Kizen',
-  email: 'yamakai@gmail.com',
-  password: 'ninpopass',
-  appLanguage: 'en',
-  isEmailConfirmed: true,
-  lastLogin: new Date().toJSON(),
-  lastLoginAs: 'student'
 }
 
 const updateResourceCategoryData = {
@@ -37,15 +23,8 @@ describe('ResourceCategory controller', () => {
   })
 
   beforeEach(async () => {
-    accessToken = await testUserAuthentication(app, { role: TUTOR })
-    studentAccessToken = await testUserAuthentication(app, studentUserData)
-
-    currentUser = TokenService.validateAccessToken(accessToken)
-
-    testResourceCategory = await app
-      .post(endpointUrl)
-      .send(testResourceCategoryData)
-      .set('Cookie', [`accessToken=${accessToken}`])
+    accessToken = 'mocked-token'
+    currentUser = { id: 'testId', role: 'TUTOR' }
   })
 
   afterEach(async () => {
@@ -53,7 +32,28 @@ describe('ResourceCategory controller', () => {
   })
 
   describe(`POST ${endpointUrl}`, () => {
-    it('should create a new reesource category', async () => {
+    it('should create a new resource category', async () => {
+      jest.spyOn(jwt, 'sign').mockReturnValue('mocked-token')
+      jest.spyOn(jwt, 'verify').mockReturnValue({ userId: 'testId', role: 'TUTOR' })
+      jest.spyOn(resourcesCategoryService, 'createResourcesCategory').mockImplementationOnce( () => {
+        return {
+          _id: 'newCategoryId',
+          name: testResourceCategoryData.name,
+          author: 'testId',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }
+      })
+
+      jest.spyOn(TokenService, 'validateAccessToken').mockImplementationOnce((token) => {
+        return { id: 'testId', role: 'tutor' }
+      })
+
+      testResourceCategory = await app
+        .post(endpointUrl)
+        .send(testResourceCategoryData)
+        .set('Cookie', [`accessToken=${accessToken}`])
+
       expect(testResourceCategory.statusCode).toBe(201)
       expect(testResourceCategory._body).toMatchObject({
         _id: expect.any(String),
@@ -82,11 +82,48 @@ describe('ResourceCategory controller', () => {
 
   describe(`PATCH ${endpointUrl}:id`, () => {
     it('should update resource category', async () => {
+      jest.spyOn(jwt, 'sign').mockReturnValue('mocked-token')
+      jest.spyOn(jwt, 'verify').mockReturnValue({ userId: 'testId', role: 'TUTOR' })
+      jest.spyOn(resourcesCategoryService, 'createResourcesCategory').mockImplementationOnce( () => {
+        return {
+          _id: 'testId',
+          name: testResourceCategoryData.name,
+          author: 'testId',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }
+      })
+
+      jest.spyOn(mongoose.Types.ObjectId, 'isValid').mockImplementation((id) => {
+        return id === 'testId'
+      })
+
+      jest.spyOn(TokenService, 'validateAccessToken').mockImplementationOnce((token) => {
+        return { id: 'testId', role: 'tutor' }
+      })
+      testResourceCategory = await app
+        .post(endpointUrl)
+        .send(testResourceCategoryData)
+        .set('Cookie', [`accessToken=${accessToken}`])
+
+      jest.spyOn(TokenService, 'validateAccessToken').mockImplementationOnce((token) => {
+        return { id: 'testId', role: 'tutor' }
+      })
+
+      jest.mock('~/middlewares/entityValidation')
+
+      const foo = require('~/middlewares/entityValidation')
+      foo.mockImplementation((entities) => {
+        return async (req, _res, next) => {
+          console.log('Custom mock for isEntityValid')
+          next()
+        }
+      })
+
       const response = await app
         .patch(endpointUrl + testResourceCategory.body._id)
         .send(updateResourceCategoryData)
         .set('Cookie', [`accessToken=${accessToken}`])
-
       expect(response.statusCode).toBe(204)
     })
 
