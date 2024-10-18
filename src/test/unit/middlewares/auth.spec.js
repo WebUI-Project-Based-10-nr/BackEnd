@@ -4,6 +4,7 @@ const { createUnauthorizedError } = require('~/utils/errorsHelper')
 const tokenService = require('~/services/token')
 const authService = require('~/services/auth')
 
+jest.mock('~/services/token')
 jest.mock('google-auth-library')
 jest.mock('~/services/user')
 jest.mock('~/services/auth')
