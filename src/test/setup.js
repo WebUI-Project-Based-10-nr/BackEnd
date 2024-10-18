@@ -1,23 +1,23 @@
 const express = require('express')
-const mongoose = require('mongoose')
 const request = require('supertest')
 require('~/initialization/envSetup')
 
-const serverSetup = require('~/initialization/serverSetup')
+const dbHandler = require("~/test/dbHandler");
+const initialization = require("~/initialization/initialization");
 
 const serverInit = async () => {
-  const app = express()
-  const server = await serverSetup(app)
-  return { app: request(app), server }
+  await dbHandler.connect()
+  let app = express()
+  initialization(app)
+  return { app: request(app) }
 }
 
 const serverCleanup = async () => {
-  await mongoose.connection.db.dropDatabase()
+  await dbHandler.clearDatabase()
 }
 
-const stopServer = async (server) => {
-  await mongoose.connection.close()
-  await server.close()
+const stopServer = async () => {
+  await dbHandler.closeDatabase()
 }
 
 module.exports = { serverInit, serverCleanup, stopServer }

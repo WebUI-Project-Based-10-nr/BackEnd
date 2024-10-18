@@ -1,30 +1,29 @@
-const { serverInit, serverCleanup, stopServer } = require('~/test/setup')
+const errors = require('~/consts/errors');
 const {
   lengths: { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH },
   enums: { ROLE_ENUM }
-} = require('~/consts/validation')
-const errors = require('~/consts/errors')
-const tokenService = require('~/services/token')
-const Token = require('~/models/token')
+} = require('~/consts/validation');
 const { expectError } = require('~/test/helpers')
+const Token = require('~/models/token')
+const tokenService = require('~/services/token')
+const { serverInit, serverCleanup } = require('~/test/setup')
+const jwt = require('jsonwebtoken')
+const authService = require('~/services/auth')
 
 describe('Auth controller', () => {
-  let app, server, signupResponse
+  let app, signupResponse
 
   beforeAll(async () => {
-    ; ({ app, server } = await serverInit())
+    ({ app } = await serverInit())
   })
 
   beforeEach(async () => {
     signupResponse = await app.post('/auth/signup').send(user)
-  })
+    jest.clearAllMocks()
+  });
 
   afterEach(async () => {
     await serverCleanup()
-  })
-
-  afterAll(async () => {
-    await stopServer(server)
   })
 
   const user = {
@@ -109,6 +108,13 @@ describe('Auth controller', () => {
     afterEach(() => jest.resetAllMocks())
 
     it('should throw BAD_RESET_TOKEN error', async () => {
+      jest.spyOn(jwt, 'sign').mockReturnValue('mocked-token')
+      jest.spyOn(jwt, 'verify').mockReturnValue({ userId: 'testId' })
+      jest.spyOn(authService, 'updatePassword').mockImplementation(() => {
+        console.log('here')
+        throw new Error(errors.BAD_RESET_TOKEN)
+      })
+
       const response = await app.patch('/auth/reset-password/invalid-token').send({ password: 'valid_pass1' })
 
       expectError(400, errors.BAD_RESET_TOKEN, response)
