@@ -1,3 +1,4 @@
+const { OAuth2Client } = require('google-auth-library')
 const tokenService = require('~/services/token')
 const emailService = require('~/services/email')
 const { getUserByEmail, createUser, privateUpdateUser, getUserById } = require('~/services/user')
@@ -13,6 +14,9 @@ const emailSubject = require('~/consts/emailSubject')
 const {
   tokenNames: { REFRESH_TOKEN, RESET_TOKEN, CONFIRM_TOKEN }
 } = require('~/consts/auth')
+const {
+  gmailCredentials: { clientId }
+} = require('~/configs/config')
 
 const authService = {
   signup: async (role, firstName, lastName, email, password, language) => {
@@ -27,14 +31,29 @@ const authService = {
     }
   },
 
-  login: async (email, password, isFromGoogle) => {
-    const user = await getUserByEmail(email)
+  googleAuth: async (idToken, role, language) => {
+    const client = new OAuth2Client(clientId)
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: clientId
+    })
+    const { email, given_name, family_name, sub } = ticket.getPayload()
+
+    let user = await getUserByEmail(email)
+
+    if (!user && role) user = await createUser(role, given_name, family_name, email, sub, language, true)
+
+    return module.exports.login(email, sub, true, user)
+  },
+
+  login: async (email, password, isFromGoogle, user) => {
+    if (!user) user = await getUserByEmail(email)
 
     if (!user) {
       throw createError(401, USER_NOT_FOUND)
     }
 
-    const checkedPassword = (password === user.password) || isFromGoogle
+    const checkedPassword = password === user.password || isFromGoogle
 
     if (!checkedPassword) {
       throw createError(401, INCORRECT_CREDENTIALS)
