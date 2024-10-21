@@ -6,6 +6,8 @@ const { lessonService } = require('~/services/lesson')
 class LessonController {
   getLessons(req, res) {
     const { title, sort, skip = 0, limit = 10, categories } = req.query
+    const userId = req.user.id
+    console.log(userId)
     let categoriesOptions
 
     if (Array.isArray(categories)) {
@@ -21,11 +23,11 @@ class LessonController {
 
     const sortOptions = getSortOptions(sort)
     try {
-      const lessons = lessonService.getLessons(match, sortOptions, +skip, +limit)
+      const lessons = lessonService.getLessons(userId, match, sortOptions, +skip, +limit)
       res.status(200).json(lessons)
     } catch (e) {
       console.error(e.message)
-      res.status(500).json({ message: 'Internal Server Error' })
+      res.status(500).json(e)
     }
   }
 
@@ -38,7 +40,7 @@ class LessonController {
       res.status(200).json(lesson)
     } catch (e) {
       console.error(e.message)
-      res.status(500).json({ message: 'Internal Server Error' })
+      res.status(500).json(e)
     }
   }
 
@@ -51,7 +53,7 @@ class LessonController {
       res.status(201).json(newLesson)
     } catch (e) {
       console.error(e.message)
-      res.status(500).json({ message: 'Internal Server Error' })
+      res.status(500).json(e)
     }
   }
 

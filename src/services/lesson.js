@@ -37,8 +37,8 @@ class LessonService {
       .filter((attachment) => attachment && attachment.author === userId)
   }
 
-  getLessons(match, sort, skip, limit) {
-    let filteredLessons = LessonService.findMatchingLessons(match)
+  getLessons(userId, match, sort, skip, limit) {
+    let filteredLessons = LessonService.findMatchingLessons(match).filter((item) => item.author === userId)
 
     const sortKey = Object.keys(sort)[0]
     const sortOrder = sort[sortKey] === 'asc' ? 1 : -1
@@ -63,6 +63,10 @@ class LessonService {
 
     if (!lesson) {
       throw createNotFoundError()
+    }
+
+    if (lesson.author !== userId) {
+      throw createForbiddenError()
     }
 
     return { ...lesson, attachments: LessonService.getAttachmentsForLesson(lesson, userId) }
