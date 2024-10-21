@@ -5,7 +5,7 @@ const { createBadRequestError } = require('~/utils/errorsHelper')
 const lessonController = require('../controllers/lesson')
 
 const isLessonValid = (req, res, next) => {
-  const { title, description, category } = req.body
+  const { title, description, category, text } = req.body
 
   if (!title || typeof title !== 'string') {
     throw createBadRequestError()
@@ -14,6 +14,10 @@ const isLessonValid = (req, res, next) => {
     throw createBadRequestError()
   }
   if (!category || typeof category !== 'object' || !category._id || !category.name) {
+    throw createBadRequestError()
+  }
+
+  if (!text || typeof text !== 'string') {
     throw createBadRequestError()
   }
 

@@ -31,9 +31,10 @@ class LessonController {
 
   getLessonById(req, res) {
     const { lessonId } = req.params
+    const { id } = req.user
 
     try {
-      const lesson = lessonService.getLessonById(+lessonId)
+      const lesson = lessonService.getLessonById(+lessonId, id)
       res.status(200).json(lesson)
     } catch (e) {
       console.error(e.message)
@@ -43,10 +44,10 @@ class LessonController {
 
   createLesson(req, res) {
     const { id: author } = req.user
-    const { title, description, category } = req.body
+    const { title, description, category, attachments, text } = req.body
 
     try {
-      const newLesson = lessonService.createLesson({ author, title, description, category })
+      const newLesson = lessonService.createLesson({ author, title, description, category, text, attachments })
       res.status(201).json(newLesson)
     } catch (e) {
       console.error(e.message)
@@ -72,8 +73,13 @@ class LessonController {
     const { id: currentUserId } = req.user
     const data = req.body
 
-    const updatedLesson = lessonService.updateLesson(+id, currentUserId, data)
-    res.status(200).json(updatedLesson)
+    try {
+      const updatedLesson = lessonService.updateLesson(+id, currentUserId, data)
+      res.status(200).json(updatedLesson)
+    } catch (e) {
+      console.error(e.message)
+      res.status(500).json(e)
+    }
   }
 }
 

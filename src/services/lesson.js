@@ -1,36 +1,6 @@
 const { createForbiddenError, createNotFoundError } = require('~/utils/errorsHelper')
-const description = 'Blah-blah-blah-blah-blah-blah-blah-Blah-blah-blah'
-let lessons = [
-  {
-    author: '6707dcb29e254368b86fc1ba',
-    _id: 1,
-    title: 'Algebra Basics',
-    description,
-    category: { _id: 1, name: 'Math' }
-  },
-  {
-    author: '6707dcb29e254368b86fc1ba',
-    _id: 2,
-    title: 'Introduction to Biology',
-    description,
-    category: { _id: 2, name: 'Science' }
-  },
-  {
-    author: '6707dcb29e254368b86fc1ba',
-    _id: 3,
-    title: 'Advanced Geometry',
-    description,
-    category: { _id: 1, name: 'Math' }
-  },
-  {
-    author: '6707dcb29e254368b86fc1ba',
-    _id: 4,
-    title: 'World War II',
-    description,
-    category: { _id: 3, name: 'History' }
-  },
-  { author: '6707dcb29e254368b86fc1ba', _id: 5, title: 'Physics', description, category: { _id: 2, name: 'Science' } }
-]
+let lessons = require('~/data/lessons')
+const attachments = require('~/data/attachments')
 
 class LessonService {
   static matchesStructure(lesson, searchCriteria) {
@@ -61,6 +31,12 @@ class LessonService {
     return lessons.filter((lesson) => this.matchesStructure(lesson, criteria))
   }
 
+  static getAttachmentsForLesson(lesson, userId) {
+    return lesson.attachments
+      .map((attId) => attachments.find((att) => att.id === attId))
+      .filter((attachment) => attachment && attachment.author === userId)
+  }
+
   getLessons(match, sort, skip, limit) {
     let filteredLessons = LessonService.findMatchingLessons(match)
 
@@ -76,24 +52,32 @@ class LessonService {
     }
 
     const items = filteredLessons.slice(skip, skip + limit)
+
     const totalCount = filteredLessons.length
 
     return { items, count: totalCount }
   }
 
-  getLessonById(id) {
-    return lessons.filter((item) => item._id === id)
+  getLessonById(id, userId) {
+    const lesson = lessons.find((item) => item._id === id)
+
+    if (!lesson) {
+      throw createNotFoundError()
+    }
+
+    return { ...lesson, attachments: LessonService.getAttachmentsForLesson(lesson, userId) }
   }
 
   createLesson(lessonData) {
     const lastLesson = lessons[lessons.length - 1]
     const newLesson = {
       _id: lastLesson ? lastLesson._id + 1 : 1,
-      ...lessonData
+      ...lessonData,
+      attachments: lessonData.attachments || [],
+      lastUpdates: new Date().toISOString()
     }
 
     lessons.push(newLesson)
-    console.log(lessons)
     return newLesson
   }
 
@@ -123,7 +107,17 @@ class LessonService {
       throw createForbiddenError()
     }
 
-    const updatedLesson = { ...lesson, ...data, _id: lesson._id, author: lesson.author }
+    const updatedLesson = {
+      ...lesson,
+      ...data,
+      _id: lesson._id,
+      author: lesson.author,
+      lastUpdates: new Date().toISOString()
+    }
+
+    if (data.attachments) {
+      updatedLesson.attachments = [...new Set([...lesson.attachments, ...data.attachments])]
+    }
 
     lessons = lessons.map((item) => (item._id === lessonId ? updatedLesson : item))
     return updatedLesson
