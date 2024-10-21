@@ -5,7 +5,7 @@ const { allowedOfferFieldsForUpdate } = require('~/validation/services/offer')
 
 const offerService = {
   getOffers: async (pipeline) => {
-    const [response] = await Offer.aggregate(pipeline).exec()
+    const response = await Offer.aggregate(pipeline)
     return response
   },
 
@@ -21,6 +21,10 @@ const offerService = {
       ])
       .lean()
       .exec()
+
+    if (!offer) {
+      throw new Error('Document not found')
+    }
 
     if (offer.author.FAQ && offer.authorRole in offer.author.FAQ) {
       offer.author.FAQ = offer.author.FAQ[offer.authorRole]
