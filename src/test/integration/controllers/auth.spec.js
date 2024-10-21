@@ -6,7 +6,7 @@ const {
 const { expectError } = require('~/test/helpers')
 const Token = require('~/models/token')
 const tokenService = require('~/services/token')
-const { serverInit, serverCleanup } = require('~/test/setup')
+const { serverInit, serverCleanup, stopServer} = require('~/test/setup')
 const jwt = require('jsonwebtoken')
 const authService = require('~/services/auth')
 
@@ -25,6 +25,10 @@ describe('Auth controller', () => {
   afterEach(async () => {
     await serverCleanup()
   })
+
+  afterAll(async () => {
+    await stopServer();
+  });
 
   const user = {
     role: 'student',

@@ -1,4 +1,4 @@
-const { serverInit, serverCleanup } = require('~/test/setup')
+const { serverInit, serverCleanup, stopServer } = require('~/test/setup')
 const { expectError } = require('~/test/helpers')
 const { UNAUTHORIZED, FORBIDDEN } = require('~/consts/errors')
 const testUserAuthentication = require('~/utils/testUserAuth')
@@ -30,6 +30,10 @@ describe('ResourceCategory controller', () => {
   afterEach(async () => {
     await serverCleanup()
   })
+
+  afterAll(async () => {
+    await stopServer();
+  });
 
   describe(`POST ${endpointUrl}`, () => {
     it('should create a new resource category', async () => {
