@@ -46,6 +46,20 @@ const authService = {
     return module.exports.login(email, sub, true, user)
   },
 
+  confirmEmail: async (confirmToken) => {
+    const tokenData = tokenService.validateConfirmToken(confirmToken)
+    const tokenFromDB = await tokenService.findToken(confirmToken, CONFIRM_TOKEN)
+
+    if (!tokenData || !tokenFromDB) {
+      throw createError(400, 'Invalid or expired confirmation token.')
+    }
+
+    const userId = tokenData.id
+    await privateUpdateUser(userId, { isEmailConfirmed: true })
+
+    await tokenService.removeConfirmToken(userId)
+  },
+
   login: async (email, password, isFromGoogle, user) => {
     if (!user) user = await getUserByEmail(email)
 

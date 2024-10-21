@@ -5,6 +5,7 @@ const tokenService = require('~/services/token')
 const authService = require('~/services/auth')
 const jwt = require('jsonwebtoken')
 
+jest.mock('~/services/token')
 jest.mock('google-auth-library')
 jest.mock('~/services/user')
 jest.mock('~/services/auth')
@@ -35,7 +36,8 @@ describe('Auth middleware', () => {
 
     const mockRequest = { cookies: { accessToken: 'invalid_token' } }
     const middlewareFunc = () => authMiddleware(mockRequest, mockResponse, mockNextFunc)
-    expect(middlewareFunc).toThrowError(new Error('The requested URL requires user authorization.'))
+
+    expect(middlewareFunc).toThrow(error)
   })
 
   it('Should throw UNAUTHORIZED error when access token is invalid', () => {
