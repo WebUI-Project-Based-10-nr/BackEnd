@@ -116,7 +116,6 @@ describe('ResourceCategory controller', () => {
       const foo = require('~/middlewares/entityValidation')
       foo.mockImplementation((entities) => {
         return async (req, _res, next) => {
-          console.log('Custom mock for isEntityValid')
           next()
         }
       })

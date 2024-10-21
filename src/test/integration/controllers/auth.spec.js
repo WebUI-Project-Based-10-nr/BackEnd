@@ -112,7 +112,6 @@ describe('Auth controller', () => {
       jest.spyOn(jwt, 'sign').mockReturnValue('mocked-token')
       jest.spyOn(jwt, 'verify').mockReturnValue({ userId: 'testId' })
       jest.spyOn(authService, 'updatePassword').mockImplementation(() => {
-        console.log('here')
         throw new Error(errors.BAD_RESET_TOKEN)
       })
 
