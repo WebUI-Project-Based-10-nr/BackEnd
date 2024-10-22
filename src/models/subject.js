@@ -14,8 +14,8 @@ const subjectSchema = new Schema(
       ref: CATEGORY,
       required: [true, FIELD_CANNOT_BE_EMPTY('category')]
     }
-  }
-    { timestamps: true, versionKey: false }
+  },
+  { timestamps: true, versionKey: false }
 )
 
 subjectSchema.index({ name: 1 }, { unique: true })
