@@ -8,18 +8,6 @@ const categorySchema = new Schema(
       type: String,
       unique: true,
       required: [true, FIELD_CANNOT_BE_EMPTY('name')]
-    },
-    appearance: {
-      icon: {
-        type: String,
-        required: [true, FIELD_CANNOT_BE_EMPTY('category icon')],
-        default: 'mocked-path-to-icon'
-      },
-      color: {
-        type: String,
-        required: [true, FIELD_CANNOT_BE_EMPTY('icon color')],
-        default: '#66C42C'
-      }
     }
   },
   {
