@@ -33,7 +33,7 @@ const lessonSchema = new Schema(
       default: null
     },
     attachments: {
-      type: Schema.Types.ObjectId,
+      type: [Schema.Types.ObjectId],
       ref: ATTACHMENT,
       default: null
     }

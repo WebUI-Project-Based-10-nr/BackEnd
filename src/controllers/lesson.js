@@ -2,12 +2,13 @@ const getCategoriesOptions = require('~/utils/getCategoriesOption')
 const getMatchOptions = require('~/utils/getMatchOptions')
 const getSortOptions = require('~/utils/getSortOptions')
 const { lessonService } = require('~/services/lesson')
+const isObjectIdValid = require('~/utils/objectIdValidation')
 
 class LessonController {
-  getLessons(req, res) {
+  async getLessons(req, res) {
+    const author = req.user.id
     const { title, sort, skip = 0, limit = 10, categories } = req.query
-    const userId = req.user.id
-    console.log(userId)
+
     let categoriesOptions
 
     if (Array.isArray(categories)) {
@@ -17,71 +18,54 @@ class LessonController {
     }
 
     const match = getMatchOptions({
+      author,
       title,
       categoryIDs: categoriesOptions
-    }) // Type Match = {title: string | string[], categoryIDs: string[]}
+    })
 
     const sortOptions = getSortOptions(sort)
-    try {
-      const lessons = lessonService.getLessons(userId, match, sortOptions, +skip, +limit)
-      res.status(200).json(lessons)
-    } catch (e) {
-      console.error(e.message)
-      res.status(500).json(e)
-    }
+
+    const lessons = await lessonService.getLessons(match, sortOptions, +skip, +limit)
+    res.json(lessons)
   }
 
-  getLessonById(req, res) {
-    const { lessonId } = req.params
-    const { id } = req.user
+  async getLessonById(req, res) {
+    const lessonId = req.params.id
+    const author = req.user.id
 
-    try {
-      const lesson = lessonService.getLessonById(+lessonId, id)
-      res.status(200).json(lesson)
-    } catch (e) {
-      console.error(e.message)
-      res.status(500).json(e)
-    }
+    isObjectIdValid(lessonId)
+
+    const lesson = await lessonService.getLessonById(author, lessonId)
+    res.json(lesson)
   }
 
-  createLesson(req, res) {
-    const { id: author } = req.user
+  async createLesson(req, res) {
+    const author = req.user.id
     const { title, description, category, attachments, text } = req.body
 
-    try {
-      const newLesson = lessonService.createLesson({ author, title, description, category, text, attachments })
-      res.status(201).json(newLesson)
-    } catch (e) {
-      console.error(e.message)
-      res.status(500).json(e)
-    }
+    const newLesson = await lessonService.createLesson(author, title, description, category, text, attachments)
+    res.status(201).json(newLesson)
   }
 
-  deleteLesson(req, res) {
-    const userId = req.user.id
-    const { id } = req.params
+  async deleteLesson(req, res) {
+    const author = req.user.id
+    const lessonId = req.params.id
 
-    try {
-      const deleteLesson = lessonService.deleteLesson(+id, userId)
-      res.status(200).json(deleteLesson)
-    } catch (e) {
-      console.error(e.message)
-      res.status(500).json(e)
-    }
+    isObjectIdValid(lessonId)
+
+    await lessonService.deleteLesson(author, lessonId)
+    return res.json({ message: 'Item successfully deleted' })
   }
 
-  updateLesson(req, res) {
-    const { id } = req.params
-    const { id: currentUserId } = req.user
+  async updateLesson(req, res) {
+    const author = req.user.id
+    const lessonId = req.params.id
     const data = req.body
 
-    try {
-      const updatedLesson = lessonService.updateLesson(+id, currentUserId, data)
-      res.status(200).json(updatedLesson)
-    } catch (e) {
-      console.error(e.message)
-      res.status(500).json(e)
-    }
+    isObjectIdValid(lessonId)
+
+    const updatedLesson = await lessonService.updateLesson(author, lessonId, data)
+    res.status(200).json(updatedLesson)
   }
 }
 

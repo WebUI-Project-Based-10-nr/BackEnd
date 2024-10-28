@@ -1,130 +1,88 @@
+const Lesson = require('~/models/lesson')
 const { createForbiddenError, createNotFoundError } = require('~/utils/errorsHelper')
-let lessons = require('~/data/lessons')
-const attachments = require('~/data/attachments')
 
 class LessonService {
-  static matchesStructure(lesson, searchCriteria) {
-    const { title, categoryIDs } = searchCriteria
+  async getLessons(match, sort, skip = 0, limit = 10) {
+    const items = await Lesson.find(match)
+      .collation({ locale: 'en', strength: 1 })
+      .sort(sort)
+      .skip(skip)
+      .limit(limit)
+      .lean()
+      .exec()
 
-    let lessonTitleMatches
-    if (title) {
-      if (Array.isArray(title)) {
-        lessonTitleMatches = title.some((t) => lesson.title.includes(t))
-      } else {
-        lessonTitleMatches = lesson.title.includes(title)
-      }
-    } else {
-      lessonTitleMatches = true
-    }
-
-    let lessonCategoryIdMatches
-    if (categoryIDs) {
-      lessonCategoryIdMatches = categoryIDs.some((id) => lesson.category._id.toString() === id)
-    } else {
-      lessonCategoryIdMatches = true
-    }
-
-    return lessonTitleMatches && lessonCategoryIdMatches
-  }
-
-  static findMatchingLessons(criteria) {
-    return lessons.filter((lesson) => this.matchesStructure(lesson, criteria))
-  }
-
-  static getAttachmentsForLesson(lesson, userId) {
-    return lesson.attachments
-      .map((attId) => attachments.find((att) => att.id === attId))
-      .filter((attachment) => attachment && attachment.author === userId)
-  }
-
-  getLessons(userId, match, sort, skip, limit) {
-    let filteredLessons = LessonService.findMatchingLessons(match).filter((item) => item.author === userId)
-
-    const sortKey = Object.keys(sort)[0]
-    const sortOrder = sort[sortKey] === 'asc' ? 1 : -1
-
-    if (sortKey) {
-      filteredLessons = filteredLessons.sort((a, b) => {
-        if (a[sortKey] > b[sortKey]) return sortOrder
-        if (a[sortKey] < b[sortKey]) return -sortOrder
-        return 0
-      })
-    }
-
-    const items = filteredLessons.slice(skip, skip + limit)
-
-    const totalCount = filteredLessons.length
+    const totalCount = await Lesson.countDocuments(match)
 
     return { items, count: totalCount }
   }
 
-  getLessonById(id, userId) {
-    const lesson = lessons.find((item) => item._id === id)
+  async getLessonById(author, lessonId) {
+    const lesson = await Lesson.findById(lessonId)
 
     if (!lesson) {
       throw createNotFoundError()
     }
 
-    if (lesson.author !== userId) {
+    if (lesson.author.toString() !== author) {
       throw createForbiddenError()
     }
 
-    return { ...lesson, attachments: LessonService.getAttachmentsForLesson(lesson, userId) }
-  }
-
-  createLesson(lessonData) {
-    const lastLesson = lessons[lessons.length - 1]
-    const newLesson = {
-      _id: lastLesson ? lastLesson._id + 1 : 1,
-      ...lessonData,
-      attachments: lessonData.attachments || [],
-      lastUpdates: new Date().toISOString()
-    }
-
-    lessons.push(newLesson)
-    return newLesson
-  }
-
-  deleteLesson(lessonId, userId) {
-    const lesson = lessons.find((item) => item._id === lessonId)
-
-    if (!lesson) {
-      throw createNotFoundError()
-    }
-
-    if (lesson.author !== userId) {
-      throw createForbiddenError()
-    }
-
-    lessons = lessons.filter((item) => item._id !== lessonId)
     return lesson
   }
 
-  updateLesson(lessonId, userId, data) {
-    const lesson = lessons.find((item) => item._id === lessonId)
+  async createLesson(author, title, description, category, text, attachments) {
+    return await Lesson.create({
+      author,
+      title,
+      description,
+      text,
+      category,
+      attachments
+    })
+  }
+
+  async deleteLesson(author, lessonId) {
+    const lesson = await Lesson.findById(lessonId)
+
+    if (!lesson) {
+      throw createNotFoundError()
+    }
+    if (lesson.author.toString() !== author) {
+      throw createForbiddenError()
+    }
+
+    await lesson.remove()
+  }
+
+  async updateLesson(author, lessonId, data) {
+    const lesson = await Lesson.findById(lessonId)
 
     if (!lesson) {
       throw createNotFoundError()
     }
 
-    if (lesson.author !== userId) {
+    if (lesson.author.toString() !== author) {
       throw createForbiddenError()
     }
 
-    const updatedLesson = {
-      ...lesson,
-      ...data,
-      _id: lesson._id,
-      author: lesson.author,
-      lastUpdates: new Date().toISOString()
+    const allowedUpdates = ['title', 'description', 'text', 'category']
+
+    for (const key of allowedUpdates) {
+      if (key in data) {
+        lesson[key] = data[key]
+      }
     }
 
-    if (data.attachments) {
-      updatedLesson.attachments = [...new Set([...lesson.attachments, ...data.attachments])]
+    if (Array.isArray(data.attachments)) {
+      const uniqueAttachments = new Set([
+        ...lesson.attachments.map((attachment) => attachment.toString()),
+        ...data.attachments
+      ])
+      lesson.attachments = Array.from(uniqueAttachments)
     }
 
-    lessons = lessons.map((item) => (item._id === lessonId ? updatedLesson : item))
-    return updatedLesson
+    await lesson.save()
+    return lesson
   }
 }
 

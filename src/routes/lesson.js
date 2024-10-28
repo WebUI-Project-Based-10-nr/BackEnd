@@ -1,35 +1,17 @@
 const router = require('express').Router()
 const { authMiddleware } = require('~/middlewares/auth')
-const { createBadRequestError } = require('~/utils/errorsHelper')
-
+const isEntityValid = require('~/middlewares/entityValidation')
+const asyncWrapper = require('~/middlewares/asyncWrapper')
+const Lesson = require('~/models/lesson')
 const lessonController = require('../controllers/lesson')
 
-const isLessonValid = (req, res, next) => {
-  const { title, description, category, text } = req.body
-
-  if (!title || typeof title !== 'string') {
-    throw createBadRequestError()
-  }
-  if (!description || typeof description !== 'string') {
-    throw createBadRequestError()
-  }
-  if (!category || typeof category !== 'object' || !category._id || !category.name) {
-    throw createBadRequestError()
-  }
-
-  if (!text || typeof text !== 'string') {
-    throw createBadRequestError()
-  }
-
-  next()
-}
+const params = [{ model: Lesson, idName: 'id' }]
 
 router.use(authMiddleware)
-
-router.get('/', lessonController.getLessons)
-router.get('/:lessonId', lessonController.getLessonById)
-router.post('/', isLessonValid, lessonController.createLesson)
-router.delete('/:id', lessonController.deleteLesson)
-router.patch('/:id', lessonController.updateLesson)
+router.get('/', asyncWrapper(lessonController.getLessons))
+router.get('/:id', isEntityValid(params), asyncWrapper(lessonController.getLessonById))
+router.post('/', asyncWrapper(lessonController.createLesson))
+router.delete('/:id', isEntityValid(params), asyncWrapper(lessonController.deleteLesson))
+router.patch('/:id', isEntityValid(params), asyncWrapper(lessonController.updateLesson))
 
 module.exports = router

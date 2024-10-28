@@ -3,15 +3,9 @@ const { createBadRequestError, createServerError } = require('~/utils/errorsHelp
 const getCategoriesOptions = require('~/utils/getCategoriesOption')
 const getMatchOptions = require('~/utils/getMatchOptions')
 const getSortOptions = require('~/utils/getSortOptions')
-const { Types } = require('mongoose')
+const isObjectIdValid = require('~/utils/objectIdValidation')
 
 class Attachment {
-  static isObjectIdValid(id) {
-    if (!Types.ObjectId.isValid(id)) {
-      throw createBadRequestError()
-    }
-  }
-
   async getAttachments(req, res) {
     const author = req.user.id
     const { name, sort, skip, limit, categories } = req.query
@@ -33,7 +27,6 @@ class Attachment {
     const sortOptions = getSortOptions(sort)
 
     const attachments = await attachmentService.getAttachments(match, sortOptions, parseInt(skip), parseInt(limit))
-
     res.json(attachments)
   }
 
@@ -41,7 +34,7 @@ class Attachment {
     const author = req.user.id
     const attachmentId = req.params.id
 
-    Attachment.isObjectIdValid(attachmentId)
+    isObjectIdValid(attachmentId)
 
     const filePath = await attachmentService.getAttachmentById(attachmentId, author)
     res.sendFile(filePath, (err) => {
@@ -67,7 +60,7 @@ class Attachment {
     const author = req.user.id
     const attachmentId = req.params.id
 
-    Attachment.isObjectIdValid(attachmentId)
+    isObjectIdValid(attachmentId)
 
     await attachmentService.deleteAttachment(attachmentId, author)
 
@@ -79,7 +72,7 @@ class Attachment {
     const attachmentId = req.params.id
     const updateData = req.body
 
-    Attachment.isObjectIdValid(attachmentId)
+    isObjectIdValid(attachmentId)
 
     const updatedAttachment = await attachmentService.updateAttachment(attachmentId, author, updateData)
     return res.status(200).json(updatedAttachment)
