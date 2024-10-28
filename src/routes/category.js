@@ -1,11 +1,17 @@
 const router = require('express').Router()
+
 const asyncWrapper = require('~/middlewares/asyncWrapper')
-const categoryController = require('~/controllers/category')
+const { authMiddleware } = require('~/middlewares/auth')
 const isEntityValid = require('~/middlewares/entityValidation')
-const Category = require('~/models/category')
+
+const categoryController = require('~/controllers/category')
 const subjectRouter = require('~/routes/subject')
 
+const Category = require('~/models/category')
+
 const params = [{ model: Category, idName: 'id' }]
+
+router.use(authMiddleware)
 
 router.use('/:id/subjects', isEntityValid({ params }), subjectRouter)
 
