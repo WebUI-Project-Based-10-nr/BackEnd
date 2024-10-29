@@ -2,10 +2,13 @@ const questionService = require('~/services/question')
 const getCategoriesOptions = require('~/utils/getCategoriesOption')
 const getMatchOptions = require('~/utils/getMatchOptions')
 const getSortOptions = require('~/utils/getSortOptions')
+const qs = require("qs");
 
 const getQuestions = async (req, res) => {
   const { id: author } = req.user
-  const { title, sort, skip, limit, categories } = req.query
+  const decodedQuery = decodeURIComponent(req.url.split('?')[1]);
+  const parsedQuery = qs.parse(decodedQuery);
+  const { title, sort, skip, limit, categories } = parsedQuery
   const categoriesOptions = getCategoriesOptions(categories)
 
   const match = getMatchOptions({
