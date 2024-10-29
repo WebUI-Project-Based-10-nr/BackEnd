@@ -145,5 +145,56 @@ describe('ResourceCategory controller', () => {
 
       expectError(403, FORBIDDEN, response)
     })
+
+    it('should get 200 response', async () => {
+      jest.spyOn(TokenService, 'validateAccessToken').mockImplementationOnce((token) => {
+        return { id: 'testId', role: 'tutor' }; // Mock the token validation
+      });
+
+      jest.spyOn(TokenService, 'validateAccessToken').mockImplementationOnce((token) => {
+        return { id: 'testId', role: 'tutor' }; // Mock the token validation
+      });
+
+      // Mock the service method to return some dummy data
+      jest.spyOn(resourcesCategoryService, 'getResourcesCategories').mockResolvedValue([
+        {
+          _id: 'categoryId1',
+          name: 'Category 1',
+          author: 'testId',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        {
+          _id: 'categoryId2',
+          name: 'Category 2',
+          author: 'testId',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ]);
+
+      const response = await app
+        .get(`${endpointUrl}?limit=8&skip=0&sort%5Border%5D=desc&sort%5BorderBy%5D=updatedAt&name=`)
+        .set('Cookie', [`accessToken=${studentAccessToken}`]);
+
+      // Assertions
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toEqual([
+        {
+          _id: 'categoryId1',
+          name: 'Category 1',
+          author: 'testId',
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        },
+        {
+          _id: 'categoryId2',
+          name: 'Category 2',
+          author: 'testId',
+          createdAt: expect.any(String),
+          updatedAt: expect.any(String),
+        },
+      ]);
+    })
   })
 })
