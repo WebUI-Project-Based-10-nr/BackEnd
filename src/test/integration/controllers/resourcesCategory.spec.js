@@ -136,8 +136,7 @@ describe('ResourceCategory controller', () => {
       expectError(401, UNAUTHORIZED, response)
     })
 
-    //TODO - Fix this test
-    it.skip('should throw FORBIDDEN', async () => {
+    it('should throw FORBIDDEN', async () => {
       const response = await app
         .patch(endpointUrl)
         .send(updateResourceCategoryData)
