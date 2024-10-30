@@ -13,6 +13,31 @@ const params = [{ model: Category, idName: 'id' }]
 
 router.use(authMiddleware)
 
+/**
+ * @swagger
+ * /categories:
+ *   get:
+ *     summary: Finds and returns an array with a list of categories data
+ *     tags:
+ *       - category
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '../swagger-schemas/category-schema.yaml#/components/schemas/Category'
+ *             example:
+ *               - _id: "66bd1977da1a3f609fe9a1af"
+ *                 name: "Language"
+ *                 appearance: {
+ *                      icon: "Language",
+ *                      color: "79b25f"
+ *                 }
+ *
+ */
+
+router.use('/', asyncWrapper(categoryController.getCategories))
 router.use('/:id/subjects', isEntityValid({ params }), subjectRouter)
 
 /**
