@@ -20,13 +20,26 @@ router.use(authMiddleware)
  *     summary: Finds and returns an array with a list of categories data
  *     tags:
  *       - category
+ *     parameters:
+ *       - name: skip
+ *         in: query
+ *         description: Number of skipped items for pagination
+ *         schema:
+ *           type: integer
+ *           default: 0
+ *       - name: limit
+ *         in: query
+ *         description: Number of items per page for pagination
+ *         schema:
+ *           type: integer
+ *           default: 10
  *     responses:
  *       200:
  *         description: OK
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '../swagger-schemas/category-schema.yaml#/components/schemas/Category'
+ *               $ref: '#/components/schemas/Category'
  *             example:
  *               - _id: "66bd1977da1a3f609fe9a1af"
  *                 name: "Language"
