@@ -2,8 +2,10 @@ const Category = require('~/models/category')
 
 const categoryService = {
   getCategories: async (skip = 0, limit = 10) => {
-    const items = await Category.find().skip(skip).limit(limit).exec()
-    const count = await Category.countDocuments()
+    const [items, count] = await Promise.all([
+      Category.find().skip(skip).limit(limit).exec(),
+      Category.countDocuments()
+    ])
 
     return { items, count }
   },
