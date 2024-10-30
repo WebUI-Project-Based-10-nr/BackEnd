@@ -4,6 +4,14 @@ const path = require('path')
 const fs = require('fs')
 
 class AttachmentService {
+  static async deleteFile(filePath) {
+    try {
+      await fs.promises.unlink(filePath)
+    } catch (e) {
+      throw createServerError()
+    }
+  }
+
   async getAttachments(match, sort, skip = 0, limit = 10) {
     const items = await Attachment.find(match)
       .collation({ locale: 'en', strength: 1 })
@@ -61,12 +69,7 @@ class AttachmentService {
     }
 
     const filePath = path.join(__dirname, '..', '..', attachment.path)
-
-    fs.unlink(filePath, (error) => {
-      if (error) {
-        throw createServerError()
-      }
-    })
+    await AttachmentService.deleteFile(filePath)
 
     await attachment.remove()
   }

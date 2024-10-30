@@ -35,7 +35,7 @@ const lessonSchema = new Schema(
     attachments: {
       type: [Schema.Types.ObjectId],
       ref: ATTACHMENT,
-      default: null
+      default: []
     }
   },
   { timestamps: true, versionKey: false }

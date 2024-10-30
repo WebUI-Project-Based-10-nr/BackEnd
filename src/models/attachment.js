@@ -13,7 +13,7 @@ const attachmentSchema = new Schema(
       type: String,
       required: [true, FIELD_CANNOT_BE_EMPTY('name')],
       minLength: [1, FIELD_CANNOT_BE_SHORTER('name', 1)],
-      maxLength: [100, FIELD_CANNOT_BE_LONGER('name', 50)]
+      maxLength: [50, FIELD_CANNOT_BE_LONGER('name', 50)]
     },
     path: {
       type: String,
@@ -34,7 +34,7 @@ const attachmentSchema = new Schema(
     description: {
       type: String,
       minLength: [1, FIELD_CANNOT_BE_SHORTER('description', 1)],
-      maxLength: [200, FIELD_CANNOT_BE_LONGER('description', 50)]
+      maxLength: [200, FIELD_CANNOT_BE_LONGER('description', 200)]
     }
   },
   { timestamps: true, versionKey: false }
