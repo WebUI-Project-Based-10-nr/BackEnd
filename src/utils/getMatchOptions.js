@@ -3,7 +3,11 @@ const getMatchOptions = (filters) => {
 
   for (let [key, value] of Object.entries(filters)) {
     if (value) {
-      match[key] = value
+      if (key === 'title') {
+        match[key] = { $regex: new RegExp(value, 'i') }
+      } else {
+        match[key] = value
+      }
     }
   }
 
