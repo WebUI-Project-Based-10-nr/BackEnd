@@ -1,8 +1,9 @@
 const categoryService = require('~/services/category')
+const parseQueryInt = require('~/utils/parseQueryInt')
 
 const getCategories = async (req, res) => {
-  const skip = isNaN(parseInt(req.query.skip)) ? undefined : parseInt(req.query.skip)
-  const limit = isNaN(parseInt(req.query.limit)) ? undefined : parseInt(req.query.limit)
+  const skip = parseQueryInt(req.query.skip, 0)
+  const limit = parseQueryInt(req.query.limit, 0)
 
   const categories = await categoryService.getCategories(skip, limit)
 
