@@ -2,8 +2,8 @@ const express = require('express')
 const request = require('supertest')
 require('~/initialization/envSetup')
 
-const dbHandler = require("~/test/dbHandler");
-const initialization = require("~/initialization/initialization");
+const dbHandler = require('~/test/dbHandler')
+const initialization = require('~/initialization/initialization')
 
 const serverInit = async () => {
   await dbHandler.connect()
