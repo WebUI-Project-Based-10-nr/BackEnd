@@ -1,0 +1,16 @@
+components:
+  schemas:
+    Category:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        appearance:
+          type: object
+          properties:
+            icon:
+              type: string
+            color:
+              type: string

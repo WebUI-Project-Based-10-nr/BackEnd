@@ -1,4 +1,4 @@
-const { UNAUTHORIZED, NOT_FOUND, FORBIDDEN, BAD_REQUEST } = require('~/consts/errors')
+const { UNAUTHORIZED, NOT_FOUND, FORBIDDEN, BAD_REQUEST, INTERNAL_SERVER_ERROR } = require('~/consts/errors')
 
 const createError = (status, errorInfo) => {
   const err = new Error(errorInfo.message)
@@ -24,10 +24,15 @@ const createBadRequestError = () => {
   return createError(400, BAD_REQUEST)
 }
 
+const createServerError = () => {
+  return createError(500, INTERNAL_SERVER_ERROR)
+}
+
 module.exports = {
   createError,
   createUnauthorizedError,
   createNotFoundError,
   createForbiddenError,
-  createBadRequestError
+  createBadRequestError,
+  createServerError
 }

@@ -1,12 +1,12 @@
-const errors = require('~/consts/errors');
+const errors = require('~/consts/errors')
 const {
   lengths: { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH },
   enums: { ROLE_ENUM }
-} = require('~/consts/validation');
+} = require('~/consts/validation')
 const { expectError } = require('~/test/helpers')
 const Token = require('~/models/token')
 const tokenService = require('~/services/token')
-const { serverInit, serverCleanup, stopServer} = require('~/test/setup')
+const { serverInit, serverCleanup, stopServer } = require('~/test/setup')
 const jwt = require('jsonwebtoken')
 const authService = require('~/services/auth')
 
@@ -14,21 +14,21 @@ describe('Auth controller', () => {
   let app, signupResponse
 
   beforeAll(async () => {
-    ({ app } = await serverInit())
+    ;({ app } = await serverInit())
   })
 
   beforeEach(async () => {
     signupResponse = await app.post('/auth/signup').send(user)
     jest.clearAllMocks()
-  });
+  })
 
   afterEach(async () => {
     await serverCleanup()
   })
 
   afterAll(async () => {
-    await stopServer();
-  });
+    await stopServer()
+  })
 
   const user = {
     role: 'student',

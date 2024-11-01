@@ -16,7 +16,7 @@ const options = {
       }
     ]
   },
-  apis: ['src/routes/*.js']
+  apis: ['src/routes/*.js', './src/swagger-schemas/*.yaml']
 }
 
 const {
