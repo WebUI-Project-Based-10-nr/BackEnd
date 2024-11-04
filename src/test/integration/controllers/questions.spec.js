@@ -1,80 +1,83 @@
-const { serverInit, serverCleanup, stopServer } = require('~/test/setup')
-const TokenService = require('~/services/token')
-const endpointUrl = '/questions/'
-const questionService = require('~/services/question')
+const { serverInit, serverCleanup, stopServer } = require('~/test/setup');
+const TokenService = require('~/services/token');
+const endpointUrl = '/questions/';
+const Question = require('~/models/question'); // Import the Mongoose model directly
+const dbHandler = require('~/test/dbHandler'); // Import your in-memory database handler
+const mongoose = require('mongoose');
 
 describe('Question controller', () => {
-  let app, accessToken, currentUser
+  let app, accessToken, currentUser;
+  jest.setTimeout(30000); // Set a higher timeout value, e.g., 30 seconds
 
   beforeAll(async () => {
-    ({ app } = await serverInit())
-  })
-
-  beforeEach(async () => {
-    accessToken = 'mocked-token'
-    currentUser = { id: 'testId', role: 'TUTOR' }
-  })
-
-  afterEach(async () => {
-    await serverCleanup()
-  })
+    await dbHandler.connect(); // Connect to the in-memory database
+    ({ app } = await serverInit()); // Do not include another mongoose.connect() here
+  });
 
   afterAll(async () => {
+    await dbHandler.closeDatabase(); // Close the connection properly
     await stopServer();
   });
 
-  describe(`GET ${endpointUrl}`, () => {
-    const mockQuestions = [
-      {
-        _id: 'questionId1',
-        title: 'Sample Question 1',
-        author: 'AtestId',
-        category: 'Category 1',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      {
-        _id: 'questionId2',
-        title: 'Sample Question 2',
-        author: 'BtestId',
-        category: 'Category 2',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-    ];
 
-    beforeEach(() => {
-      jest.clearAllMocks();
-      // jest.spyOn(jwt, 'verify').mockReturnValue({ userId: 'testId', role: 'USER' });
-      jest.spyOn(TokenService, 'validateAccessToken').mockImplementation((token) => {
-        return { id: 'testId', role: 'user' };
-      });
+  beforeEach(async () => {
+    accessToken = 'mocked-token';
+    currentUser = { id: new mongoose.Types.ObjectId(), role: 'TUTOR' }; // Use ObjectId for `id`
+
+    // Mock token validation to return an ObjectId for `id`
+    jest.spyOn(TokenService, 'validateAccessToken').mockImplementation(() => {
+      return { id: currentUser.id, role: 'user' }; // Match the `id` format used in the `currentUser`
     });
 
+    // Insert test data into the database with valid ObjectId fields
+    await Question.create([
+      {
+        _id: new mongoose.Types.ObjectId(), // Generate new ObjectId for `_id`
+        title: 'Sample Question 1',
+        author: currentUser.id, // Use the ObjectId from `currentUser` for `author`
+        type: 'multipleChoice', // Add the required `type` field
+        text: 'This is a sample question text.', // Ensure the `text` field is included
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        _id: new mongoose.Types.ObjectId(), // Generate new ObjectId for `_id`
+        title: 'Sample Question 2',
+        author: currentUser.id, // Use the ObjectId from `currentUser` for `author`
+        type: 'multipleChoice',
+        text: 'This is another sample question text.',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ]);
+  });
+
+  afterEach(async () => {
+    await dbHandler.clearDatabase(); // Clear data between tests
+    jest.clearAllMocks();
+  });
+
+  describe(`GET ${endpointUrl}`, () => {
     it('should get a 200 response and return questions in ascending order', async () => {
-      jest.spyOn(questionService, 'getQuestions').mockResolvedValue(mockQuestions);
       const response = await app
-        .get(`${endpointUrl}?limit=10&skip=0&sort%5Border%5D=asc&sort%5BorderBy%5D=category&title=`)
+        .get(`${endpointUrl}?limit=10&skip=0&sort%5Border%5D=asc&sort%5BorderBy%5D=title&title=`)
         .set('Cookie', [`accessToken=${accessToken}`]);
 
       expect(response.statusCode).toBe(200);
-      expect(response.body).toHaveLength(mockQuestions.length);
-      expect(response.body).toEqual([...mockQuestions]);
-
+      expect(response.body.items).toHaveLength(2);
+      expect(response.body.items[0].title).toBe('Sample Question 1');
+      expect(response.body.items[1].title).toBe('Sample Question 2');
     });
 
     it('should get a 200 response and return questions in descending order', async () => {
-      jest.spyOn(questionService, 'getQuestions').mockResolvedValue([...mockQuestions].reverse());
       const response = await app
-        .get(`${endpointUrl}?limit=10&skip=0&sort%5Border%5D=desc&sort%5BorderBy%5D=category&title=`)
+        .get(`${endpointUrl}?limit=10&skip=0&sort%5Border%5D=desc&sort%5BorderBy%5D=title&title=`)
         .set('Cookie', [`accessToken=${accessToken}`]);
 
       expect(response.statusCode).toBe(200);
-      expect(response.body).toHaveLength(mockQuestions.length);
-
-      // Verify descending order by reversing mockQuestions
-      expect(response.body).toEqual([...mockQuestions].reverse());
-
+      expect(response.body.items).toHaveLength(2);
+      expect(response.body.items[0].title).toBe('Sample Question 2');
+      expect(response.body.items[1].title).toBe('Sample Question 1');
     });
   });
-})
+});
