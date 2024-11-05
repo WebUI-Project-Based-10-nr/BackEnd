@@ -1,7 +1,6 @@
 const { serverInit, serverCleanup, stopServer } = require('~/test/setup')
 const { expectError } = require('~/test/helpers')
 const { UNAUTHORIZED, FORBIDDEN } = require('~/consts/errors')
-const testUserAuthentication = require('~/utils/testUserAuth')
 const TokenService = require('~/services/token')
 const endpointUrl = '/resources-categories/'
 const mongoose = require('mongoose')
@@ -19,7 +18,7 @@ describe('ResourceCategory controller', () => {
   let app, accessToken, currentUser, studentAccessToken, testResourceCategory
 
   beforeAll(async () => {
-    ({ app } = await serverInit())
+    ;({ app } = await serverInit())
   })
 
   beforeEach(async () => {
@@ -32,24 +31,24 @@ describe('ResourceCategory controller', () => {
   })
 
   afterAll(async () => {
-    await stopServer();
-  });
+    await stopServer()
+  })
 
   describe(`POST ${endpointUrl}`, () => {
     it('should create a new resource category', async () => {
       jest.spyOn(jwt, 'sign').mockReturnValue('mocked-token')
       jest.spyOn(jwt, 'verify').mockReturnValue({ userId: 'testId', role: 'TUTOR' })
-      jest.spyOn(resourcesCategoryService, 'createResourcesCategory').mockImplementationOnce( () => {
+      jest.spyOn(resourcesCategoryService, 'createResourcesCategory').mockImplementationOnce(() => {
         return {
           _id: 'newCategoryId',
           name: testResourceCategoryData.name,
           author: 'testId',
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         }
       })
 
-      jest.spyOn(TokenService, 'validateAccessToken').mockImplementationOnce((token) => {
+      jest.spyOn(TokenService, 'validateAccessToken').mockImplementationOnce(() => {
         return { id: 'testId', role: 'tutor' }
       })
 
@@ -89,13 +88,13 @@ describe('ResourceCategory controller', () => {
     it.skip('should update resource category', async () => {
       jest.spyOn(jwt, 'sign').mockReturnValue('mocked-token')
       jest.spyOn(jwt, 'verify').mockReturnValue({ userId: 'testId', role: 'TUTOR' })
-      jest.spyOn(resourcesCategoryService, 'createResourcesCategory').mockImplementationOnce( () => {
+      jest.spyOn(resourcesCategoryService, 'createResourcesCategory').mockImplementationOnce(() => {
         return {
           _id: 'testId',
           name: testResourceCategoryData.name,
           author: 'testId',
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         }
       })
 
@@ -103,7 +102,7 @@ describe('ResourceCategory controller', () => {
         return id === 'testId'
       })
 
-      jest.spyOn(TokenService, 'validateAccessToken').mockImplementationOnce((token) => {
+      jest.spyOn(TokenService, 'validateAccessToken').mockImplementationOnce(() => {
         return { id: 'testId', role: 'tutor' }
       })
       testResourceCategory = await app
@@ -111,14 +110,14 @@ describe('ResourceCategory controller', () => {
         .send(testResourceCategoryData)
         .set('Cookie', [`accessToken=${accessToken}`])
 
-      jest.spyOn(TokenService, 'validateAccessToken').mockImplementationOnce((token) => {
+      jest.spyOn(TokenService, 'validateAccessToken').mockImplementationOnce(() => {
         return { id: 'testId', role: 'tutor' }
       })
 
       jest.mock('~/middlewares/entityValidation')
 
       const foo = require('~/middlewares/entityValidation')
-      foo.mockImplementation((entities) => {
+      foo.mockImplementation(() => {
         return async (req, _res, next) => {
           next()
         }
