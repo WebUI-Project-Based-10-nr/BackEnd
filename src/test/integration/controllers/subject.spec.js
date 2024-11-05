@@ -1,4 +1,4 @@
-const { getNamesByCategoryId } = require('~/controllers/subject')
+const { getNamesByCategoryId, getSubjects } = require('~/controllers/subject')
 const subjectService = require('~/services/subject')
 const getMatchOptions = require('~/utils/getMatchOptions')
 
@@ -42,5 +42,52 @@ describe('GET /categories/{id}/subjects/names', () => {
     expect(subjectService.getNamesByCategoryId).toHaveBeenCalledWith(mockMatchOptions)
     expect(res.status).toHaveBeenCalledWith(200)
     expect(res.json).toHaveBeenCalledWith(mockNames)
+  })
+})
+
+describe('GET /subjects', () => {
+  const mockReqRes = () => {
+    const req = {}
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn()
+    }
+
+    return { req, res }
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+  it('should return a list of subjects', async () => {
+    const { req, res } = mockReqRes()
+    const mockSubjects = [
+      {
+        _id: '66bdcc18f0d7edf34088ed3e',
+        name: 'Meditation',
+        category: '66bdcb00f0d7edf34088ed23'
+      },
+      {
+        _id: '66bdcb8bf0d7edf34088ed2e',
+        name: 'German',
+        category: '66bd1977da1a3f609fe9a1af'
+      }
+    ]
+    subjectService.getSubjects.mockResolvedValue(mockSubjects)
+
+    await getSubjects(req, res)
+
+    expect(subjectService.getSubjects).toHaveBeenCalled()
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalledWith(mockSubjects)
+  })
+  it('should returns 500 on server error', async () => {
+    const { req, res } = mockReqRes()
+    subjectService.getSubjects.mockRejectedValue()
+
+    await getSubjects(req, res)
+
+    expect(subjectService.getSubjects).toHaveBeenCalled()
+    expect(res.status).toHaveBeenCalledWith(500)
   })
 })
