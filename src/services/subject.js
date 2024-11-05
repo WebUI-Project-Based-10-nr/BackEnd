@@ -7,7 +7,7 @@ const subjectService = {
 
   getSubjects: async (skip = 0, limit = 10) => {
     const [items, count] = await Promise.all([
-      Subject.find({}).skip(skip).limit(limit).select('name category').lean().exec(),
+      Subject.find().skip(skip).limit(limit).lean().exec(),
       Subject.countDocuments()
     ])
 

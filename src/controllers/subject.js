@@ -1,5 +1,6 @@
 const getMatchOptions = require('~/utils/getMatchOptions')
 const subjectService = require('~/services/subject')
+const parseQueryInt = require('~/utils/parseQueryInt')
 
 const getNamesByCategoryId = async (req, res) => {
   const { id: category } = req.params

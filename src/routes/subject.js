@@ -14,6 +14,13 @@ router.use(authMiddleware)
  *     summary: Finds and returns an array with a list of subjects
  *     tags:
  *       - subject
+ *     parameters:
+ *       - name: skip
+ *         in: query
+ *         description: Number of skipped items
+ *       - name: limit
+ *         in: query
+ *         description: Limit of items
  *     security:
  *       - bearerAuth: []
  *     responses:
