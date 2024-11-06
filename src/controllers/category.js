@@ -18,9 +18,10 @@ const getCategoriesNames = async (_req, res) => {
 
 const addCategory = async (req, res) => {
   const data = req.body
+
   const newCategory = await categoryService.addCategory(data)
 
-  res.status(201).json(newCategory)
+  res.status(200).json(newCategory)
 }
 
 module.exports = {
