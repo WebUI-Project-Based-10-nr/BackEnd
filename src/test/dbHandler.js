@@ -4,19 +4,29 @@ const { MongoMemoryServer } = require('mongodb-memory-server')
 let mongod
 
 module.exports.connect = async () => {
-  mongod = await MongoMemoryServer.create()
-  const uri = mongod.getUri()
+  if (mongod) return; // Prevent reconnecting
+  mongoose.set('strictQuery', true); // Suppress the deprecation warning
+  mongod = await MongoMemoryServer.create();
+  const uri = mongod.getUri();
 
   await mongoose.connect(uri, {
     useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
+    useUnifiedTopology: true,
+  });
 }
 
 module.exports.closeDatabase = async () => {
-  await mongoose.connection.dropDatabase()
-  await mongoose.connection.close()
-  await mongod.stop()
+  try {
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.connection.dropDatabase();
+      await mongoose.connection.close();
+    }
+    if (mongod) {
+      await mongod.stop();
+    }
+  } catch (error) {
+    console.error('Error closing database:', error);
+  }
 }
 
 module.exports.clearDatabase = async () => {
