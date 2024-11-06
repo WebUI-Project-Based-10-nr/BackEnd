@@ -1,9 +1,12 @@
 const router = require('express').Router({ mergeParams: true })
+const Subject = require('~/models/subject')
+const subjectController = require('~/controllers/subject')
 
 const asyncWrapper = require('~/middlewares/asyncWrapper')
+const isEntityValid = require('~/middlewares/entityValidation')
 const { authMiddleware } = require('~/middlewares/auth')
 
-const subjectController = require('~/controllers/subject')
+const params = [{ model: Subject, idName: 'id' }]
 
 router.use(authMiddleware)
 
@@ -50,5 +53,58 @@ router.use(authMiddleware)
  *               message: "Category ID is required."
  */
 router.get('/names', asyncWrapper(subjectController.getNamesByCategoryId))
+
+/**
+ * @swagger
+ * /subjects/{id}:
+ *   get:
+ *     summary: Find subject by ID
+ *     description: Finds and returns a subject with the specified ID.
+ *     tags:
+ *       - subject
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: ID of the subject that needs to be fetched
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             example:
+ *               _id: 66bdcc18f0d7edf34088ed3e
+ *               name: Meditation
+ *               category: 66bdcb00f0d7edf34088ed23
+ *       400:
+ *         description: Bad Request
+ *         content:
+ *           application/json:
+ *             example:
+ *               status: 400
+ *               code: INVALID_ID
+ *               message: ID is invalid.
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             example:
+ *               status: 401
+ *               code: UNAUTHORIZED
+ *               message: The requested URL requires user authorization.
+ *       404:
+ *         description: Not Found
+ *         content:
+ *           application/json:
+ *             example:
+ *               status: 404
+ *               code: DOCUMENT_NOT_FOUND
+ *               message: Subject with the specified id was not found.
+ */
+router.get('/:id', isEntityValid({ params }), asyncWrapper(subjectController.getSubjectById))
 
 module.exports = router
