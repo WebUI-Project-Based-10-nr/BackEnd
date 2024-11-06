@@ -1,4 +1,5 @@
 const Category = require('~/models/category')
+const { createNotFoundError } = require('~/utils/errorsHelper')
 
 const categoryService = {
   getCategories: async (skip = 0, limit = 10) => {
@@ -11,6 +12,15 @@ const categoryService = {
   },
   getCategoriesNames: async () => {
     return Category.find({}, 'name')
+  },
+  getCategoryById: async (categoryId) => {
+    const category = Category.findById(categoryId)
+
+    if (!category) {
+      throw createNotFoundError()
+    }
+
+    return category
   }
 }
 
