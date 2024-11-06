@@ -1,0 +1,13 @@
+components:
+  schemas:
+    Subject:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: '66bd1a02da1a3f609fe9a1ba'
+        name:
+          type: string
+          example: 'English'
+        category:
+          $ref: '#/components/schemas/Category'
