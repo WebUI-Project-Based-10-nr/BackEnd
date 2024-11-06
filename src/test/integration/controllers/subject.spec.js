@@ -1,4 +1,4 @@
-const { getNamesByCategoryId, getSubjects } = require('~/controllers/subject')
+const { getNamesByCategoryId } = require('~/controllers/subject')
 const subjectService = require('~/services/subject')
 const getMatchOptions = require('~/utils/getMatchOptions')
 
