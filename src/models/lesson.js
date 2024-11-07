@@ -15,7 +15,7 @@ const lessonSchema = new Schema(
       type: String,
       required: [true, FIELD_CANNOT_BE_EMPTY('description')],
       minLength: [1, FIELD_CANNOT_BE_SHORTER('description', 1)],
-      maxLength: [100, FIELD_CANNOT_BE_LONGER('description', 1000)]
+      maxLength: [1000, FIELD_CANNOT_BE_LONGER('description', 1000)]
     },
     content: {
       type: String,
