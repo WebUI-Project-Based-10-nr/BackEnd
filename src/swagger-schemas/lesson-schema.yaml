@@ -1,0 +1,43 @@
+components:
+  schemas:
+    Lesson:
+      type: object
+      properties:
+        _id:
+          type: string
+          example: '60d21b4667d0d8992e610c86'
+        title:
+          type: string
+          description: Title of the lesson
+          minLength: 1
+          maxLength: 100
+          example: 'Some title'
+        description:
+          type: string
+          description: A brief description of the lesson
+          minLength: 1
+          maxLength: 1000
+          example: 'This lesson introduces...'
+        content:
+          type: string
+          description: Main content of the lesson
+          minLength: 50
+          example: "Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine. It is designed to build scalable network applications. In this lesson, we will go through the basics of Node.js setup, installation, and some core concepts."
+        author:
+          type: string
+          description: Unique identifier for the user who created the lesson
+          example: '60d21b4667d0d8992e610c85'
+        category:
+          type: string
+          description: Optional category of the lesson
+          example: '60d21b4667d0d8992e610c87'
+        resourceType:
+          type: string
+          description: Type of the resource
+          enum:
+            - 'lesson'
+            - 'attachments'
+            - 'questions'
+            - 'quizzes'
+          example: 'lesson'
+      additionalProperties: false
