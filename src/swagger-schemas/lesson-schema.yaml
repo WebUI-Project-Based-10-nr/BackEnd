@@ -35,9 +35,8 @@ components:
           type: string
           description: Type of the resource
           enum:
-            - 'lesson'
+            - 'lessons'
             - 'attachments'
             - 'questions'
             - 'quizzes'
-          example: 'lesson'
       additionalProperties: false
