@@ -14,7 +14,7 @@ const categoryService = {
     return Category.find({}, 'name')
   },
   getCategoryById: async (categoryId) => {
-    const category = Category.findById(categoryId)
+    const category = await Category.findById(categoryId)
 
     if (!category) {
       throw createNotFoundError()
