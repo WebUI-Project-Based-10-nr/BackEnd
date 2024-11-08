@@ -83,6 +83,10 @@ const offerSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: refs.SUBJECT,
       required: [true, FIELD_CANNOT_BE_EMPTY('subject')]
+    },
+    category: {
+      type: String,
+      required: [true, 'category is required']
     }
   },
   {
