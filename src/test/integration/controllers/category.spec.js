@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 const TokenService = require("~/services/token");
 const dbHandler = require("~/test/dbHandler");
 const mongoose = require("mongoose");
-const Category = require('~/models/category'); // Import the Mongoose model directly
+const Category = require('~/models/category');
 
 
 describe('Category controller', () => {
@@ -25,9 +25,9 @@ describe('Category controller', () => {
   describe('POST /categories - Add Category', () => {
     const endpointUrl = '/categories';
     const mockCategoryData = { name: 'Sample', appearance: 'light' };
-    const adminToken = 'admin_access_token'; // You may mock or generate this token in the setup.
-    const userToken = 'user_access_token'; // Non-admin token for testing
-    currentUser = { id: new mongoose.Types.ObjectId(), role: 'ADMIN' }; // Use ObjectId for `id`
+    const adminToken = 'admin_access_token';
+    const userToken = 'user_access_token';
+    currentUser = { id: new mongoose.Types.ObjectId(), role: 'ADMIN' };
 
     beforeEach(async () => {
       await Category.create(

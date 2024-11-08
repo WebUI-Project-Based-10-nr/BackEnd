@@ -1,5 +1,4 @@
 const Category = require('~/models/category')
-const capitalizeFirstLetter = require('~/utils/capitalizeFirstLetter')
 
 const categoryService = {
   getCategories: async (skip = 0, limit = 10) => {
