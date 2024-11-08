@@ -2,6 +2,29 @@ const request = require('supertest')
 const express = require('express')
 const app = express()
 
+const subjectService = {
+  deleteSubjectById: jest.fn(),
+}
+
+const deleteSubject = async (req, res) => {
+  const { id, categoryId } = req.params
+  try {
+    const result = await subjectService.deleteSubjectById(categoryId, id)
+    res.status(200).json({ message: 'Subject successfully deleted' })
+  } catch (error) {
+    if (error.statusCode === 404) {
+      return res.status(404).json({ message: 'Subject not found' })
+    }
+    if (error.statusCode === 400) {
+      return res.status(400).json({ message: 'Invalid subject ID format' })
+    }
+    if (error.statusCode === 403) {
+      return res.status(403).json({ message: 'Unauthorized' })
+    }
+    res.status(500).json({ message: 'Failed to delete subject' })
+  }
+}
+
 const createForbiddenError = () => {
   const error = new Error('Forbidden')
   error.statusCode = 403
@@ -21,9 +44,8 @@ const restrictTo = (...roles) => {
 }
 
 app.use(express.json())
-app.delete('/categories/:categoryId/subjects/:id', restrictTo('admin'), (req, res) => {
-  res.status(200).send('Subject deleted')
-})
+
+app.delete('/categories/:categoryId/subjects/:id', restrictTo('admin'), deleteSubject)
 
 app.use((err, _, res, next) => {
   if (err.statusCode === 403) {
@@ -32,6 +54,7 @@ app.use((err, _, res, next) => {
   next(err)
 })
 
+// Тести
 describe('restrictTo middleware', () => {
   it('should allow access for user with correct role', async () => {
     const res = await request(app)
@@ -40,7 +63,7 @@ describe('restrictTo middleware', () => {
       .set('user', JSON.stringify({ role: 'admin' }))
 
     expect(res.status).toBe(200)
-    expect(res.text).toBe('Subject deleted')
+    expect(res.body.message).toBe('Subject successfully deleted')
   })
 
   it('should deny access for user with incorrect role', async () => {
@@ -68,5 +91,55 @@ describe('restrictTo middleware', () => {
 
     expect(res.status).toBe(403)
     expect(res.body.message).toBe('Forbidden')
+  })
+})
+
+describe('deleteSubject function', () => {
+  it('should delete a subject successfully', async () => {
+    subjectService.deleteSubjectById.mockResolvedValue({ message: 'Subject successfully deleted' })
+
+    const res = await request(app)
+      .delete('/categories/123/subjects/456')
+      .set('Authorization', 'Bearer VALID_ADMIN_TOKEN')
+      .set('user', JSON.stringify({ role: 'admin' }))
+
+    expect(res.status).toBe(200)
+    expect(res.body.message).toBe('Subject successfully deleted')
+  })
+
+  it('should return 404 if subject is not found', async () => {
+    subjectService.deleteSubjectById.mockRejectedValue({ statusCode: 404 })
+
+    const res = await request(app)
+      .delete('/categories/123/subjects/456')
+      .set('Authorization', 'Bearer VALID_ADMIN_TOKEN')
+      .set('user', JSON.stringify({ role: 'admin' }))
+
+    expect(res.status).toBe(404)
+    expect(res.body.message).toBe('Subject not found')
+  })
+
+  it('should return 400 if subject ID is invalid format', async () => {
+    subjectService.deleteSubjectById.mockRejectedValue({ statusCode: 400 })
+
+    const res = await request(app)
+      .delete('/categories/123/subjects/invalidid')
+      .set('Authorization', 'Bearer VALID_ADMIN_TOKEN')
+      .set('user', JSON.stringify({ role: 'admin' }))
+
+    expect(res.status).toBe(400)
+    expect(res.body.message).toBe('Invalid subject ID format')
+  })
+
+  it('should return 500 if there is a server error', async () => {
+    subjectService.deleteSubjectById.mockRejectedValue(new Error('Internal server error'))
+
+    const res = await request(app)
+      .delete('/categories/123/subjects/456')
+      .set('Authorization', 'Bearer VALID_ADMIN_TOKEN')
+      .set('user', JSON.stringify({ role: 'admin' }))
+
+    expect(res.status).toBe(500)
+    expect(res.body.message).toBe('Failed to delete subject')
   })
 })
