@@ -27,6 +27,7 @@ describe('Category controller', () => {
     const mockCategoryData = { name: 'Sample', appearance: 'light' };
     const adminToken = 'admin_access_token'; // You may mock or generate this token in the setup.
     const userToken = 'user_access_token'; // Non-admin token for testing
+    currentUser = { id: new mongoose.Types.ObjectId(), role: 'ADMIN' }; // Use ObjectId for `id`
 
     beforeEach(async () => {
       await Category.create(
@@ -42,10 +43,9 @@ describe('Category controller', () => {
     });
 
     it('should create a category and respond with 200 for ADMIN role', async () => {
-      currentUser = { id: new mongoose.Types.ObjectId(), role: 'ADMIN' }; // Use ObjectId for `id`
 
       jest.spyOn(jwt, 'sign').mockReturnValue('mocked-token')
-      jest.spyOn(jwt, 'verify').mockReturnValue({ userId: 'testId', role: 'ADMIN' })
+      jest.spyOn(jwt, 'verify').mockReturnValue(currentUser)
       jest.spyOn(TokenService, 'validateAccessToken').mockImplementation(() => {
         return { id: currentUser.id, role: 'admin' }; // Match the `id` format used in the `currentUser`
       });
@@ -60,9 +60,8 @@ describe('Category controller', () => {
     });
 
     it('should respond with 403 if user does not have ADMIN role', async () => {
-      currentUser = { id: new mongoose.Types.ObjectId(), role: 'TUTOR' }; // Use ObjectId for `id`
       jest.spyOn(jwt, 'sign').mockReturnValue('mocked-token')
-      jest.spyOn(jwt, 'verify').mockReturnValue({ userId: 'testId', role: 'TUTOR' })
+      jest.spyOn(jwt, 'verify').mockReturnValue(currentUser)
       jest.spyOn(TokenService, 'validateAccessToken').mockImplementation(() => {
         return { currentUser }; // Match the `id` format used in the `currentUser`
       });
@@ -78,10 +77,8 @@ describe('Category controller', () => {
 
     it('should respond with 400 for invalid data (missing name)', async () => {
       const invalidData = { appearance: 'light' };
-      currentUser = { id: new mongoose.Types.ObjectId(), role: 'ADMIN' }; // Use ObjectId for `id`
-
       jest.spyOn(jwt, 'sign').mockReturnValue('mocked-token')
-      jest.spyOn(jwt, 'verify').mockReturnValue({ userId: 'testId', role: 'ADMIN' })
+      jest.spyOn(jwt, 'verify').mockReturnValue(currentUser)
       jest.spyOn(TokenService, 'validateAccessToken').mockImplementation(() => {
         return { id: currentUser.id, role: 'admin' }; // Match the `id` format used in the `currentUser`
       });

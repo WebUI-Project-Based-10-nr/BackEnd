@@ -16,9 +16,6 @@ const categoryService = {
 
   addCategory: async (data) => {
     let { name, appearance } = data
-
-    name = capitalizeFirstLetter(name)
-
     return await Category.create({ name, appearance })
   }
 }
