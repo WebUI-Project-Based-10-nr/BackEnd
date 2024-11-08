@@ -1,0 +1,21 @@
+components:
+  schemas:
+    Lesson:
+      type: object
+      properties:
+        _id:
+          type: string
+        author:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        text:
+          type: string
+        category:
+          type: string
+        attachments:
+          type: array
+          items:
+            type: string
