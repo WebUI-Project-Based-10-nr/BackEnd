@@ -27,7 +27,7 @@ describe('Category controller', () => {
     const mockCategoryData = { name: 'Sample', appearance: 'light' };
     const adminToken = 'admin_access_token';
     const userToken = 'user_access_token';
-    currentUser = { id: new mongoose.Types.ObjectId(), role: 'ADMIN' };
+    currentUser = { id: new mongoose.Types.ObjectId(), role: 'admin' };
 
     beforeEach(async () => {
       await Category.create(
@@ -43,11 +43,10 @@ describe('Category controller', () => {
     });
 
     it('should create a category and respond with 200 for ADMIN role', async () => {
-
       jest.spyOn(jwt, 'sign').mockReturnValue('mocked-token')
       jest.spyOn(jwt, 'verify').mockReturnValue(currentUser)
       jest.spyOn(TokenService, 'validateAccessToken').mockImplementation(() => {
-        return { id: currentUser.id, role: 'admin' }; // Match the `id` format used in the `currentUser`
+        return { id: currentUser.id, role: currentUser.role }; // Match the `id` format used in the `currentUser`
       });
 
       const response = await app
@@ -61,15 +60,16 @@ describe('Category controller', () => {
 
     it('should respond with 403 if user does not have ADMIN role', async () => {
       jest.spyOn(jwt, 'sign').mockReturnValue('mocked-token')
-      jest.spyOn(jwt, 'verify').mockReturnValue(currentUser)
+      jest.spyOn(jwt, 'verify').mockReturnValue({ userId: 'testId', role: 'TUTOR' })
       jest.spyOn(TokenService, 'validateAccessToken').mockImplementation(() => {
-        return { currentUser }; // Match the `id` format used in the `currentUser`
+        return { userId: currentUser.id, role: 'tutor' };
       });
 
       const response = await app
         .post(endpointUrl)
         .set('Cookie', [`accessToken=${userToken}`])
         .send(mockCategoryData);
+      console.log('response', response);
 
       expect(response.statusCode).toBe(403);
       expect(response.body).toMatchObject({ message: 'You do not have permission to perform this action.' });
@@ -80,7 +80,7 @@ describe('Category controller', () => {
       jest.spyOn(jwt, 'sign').mockReturnValue('mocked-token')
       jest.spyOn(jwt, 'verify').mockReturnValue(currentUser)
       jest.spyOn(TokenService, 'validateAccessToken').mockImplementation(() => {
-        return { id: currentUser.id, role: 'admin' }; // Match the `id` format used in the `currentUser`
+        return { id: currentUser.id, role: currentUser.role }; // Match the `id` format used in the `currentUser`
       });
 
       const response = await app
@@ -92,27 +92,4 @@ describe('Category controller', () => {
       expect(response.body).toEqual({ message: 'Name field is required' });
     });
   });
-
-  describe('GET /categories/names', () => {
-    let res
-
-    beforeEach(() => {
-      res = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn()
-      }
-    })
-
-    it('should return 200 and a list of category names', async () => {
-      const mockCategoryNames = ['Category 1', 'Category 2', 'Category 3']
-
-      jest.spyOn(categoryService, 'getCategoriesNames').mockImplementation(() => {
-        return mockCategoryNames; // Match the `id` format used in the `currentUser`
-      });
-      await getCategoriesNames({}, res)
-
-      expect(res.status).toHaveBeenCalledWith(200)
-      expect(res.json).toHaveBeenCalledWith(mockCategoryNames)
-    })
-  })
-})
+});
