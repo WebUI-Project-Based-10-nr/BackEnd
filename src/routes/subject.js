@@ -76,6 +76,8 @@ router.get('/names', asyncWrapper(subjectController.getNamesByCategoryId))
  *         description: OK
  *         content:
  *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Subject'
  *             example:
  *               _id: 66bdcc18f0d7edf34088ed3e
  *               name: Meditation
