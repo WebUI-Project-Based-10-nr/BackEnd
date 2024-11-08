@@ -36,6 +36,11 @@ const lessonSchema = new Schema(
       type: String,
       enum: enums.RESOURCES_TYPES_ENUM,
       default: enums.RESOURCES_TYPES_ENUM[0]
+    },
+    attachments: {
+      type: [Schema.Types.ObjectId],
+      ref: ATTACHMENT,
+      default: []
     }
   },
   { timestamps: true, versionKey: false }
