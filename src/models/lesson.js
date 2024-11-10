@@ -21,11 +21,10 @@ const lessonSchema = new Schema(
       minLength: [1, FIELD_CANNOT_BE_SHORTER('description', 1)],
       maxLength: [100, FIELD_CANNOT_BE_LONGER('description', 100)]
     },
-    text: {
+    content: {
       type: String,
-      required: [true, FIELD_CANNOT_BE_EMPTY('text')],
-      minLength: [1, FIELD_CANNOT_BE_SHORTER('text', 1)],
-      maxLength: [100, FIELD_CANNOT_BE_LONGER('text', 100)]
+      required: [true, FIELD_CANNOT_BE_EMPTY('content')],
+      minLength: [50, FIELD_CANNOT_BE_SHORTER('content', 50)]
     },
     category: {
       type: Schema.Types.ObjectId,
