@@ -11,10 +11,17 @@ components:
           type: string
         description:
           type: string
-        text:
+        content:
           type: string
         category:
           type: string
+        resourceType:
+          type: string
+          enum:
+            - lessons
+            - attachments
+            - questions
+            - quizzes
         attachments:
           type: array
           items:
