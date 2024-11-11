@@ -15,6 +15,38 @@ router.use(authMiddleware)
 
 /**
  * @swagger
+ * /categories/{id}:
+ *   get:
+ *     summary: Retrieves a specific category by its ID
+ *     tags:
+ *       - category
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         description: The ID of the category to retrieve
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: A single category object
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Category'
+ *             example:
+ *               _id: "66bd1977da1a3f609fe9a1af"
+ *               name: "Language"
+ *               appearance: {
+ *                 icon: "Language",
+ *                 color: "79b25f"
+ *               }
+ */
+
+router.get('/:id', isEntityValid({ params }), asyncWrapper(categoryController.getCategoryById))
+
+/**
+ * @swagger
  * /categories:
  *   get:
  *     summary: Finds and returns an array with a list of categories data
