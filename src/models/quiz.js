@@ -22,7 +22,7 @@ const quizSchema = new Schema({
     maxLength: [150, FIELD_CANNOT_BE_LONGER('description', 150)]
   },
   items: {
-    type: Schema.Types.ObjectId,
+    type: [Schema.Types.ObjectId],
     ref: QUESTION,
     required: [true, FIELD_CANNOT_BE_EMPTY('items')]
   },
