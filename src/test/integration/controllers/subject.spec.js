@@ -1,14 +1,15 @@
-const { getSubjectById } = require('~/controllers/subject')
-const { getNamesByCategoryId } = require('~/controllers/subject')
+const { getNamesByCategoryId, getSubjectById, getSubjects } = require('~/controllers/subject')
 const subjectService = require('~/services/subject')
 const getMatchOptions = require('~/utils/getMatchOptions')
+const parseQueryInt = require('~/utils/parseQueryInt')
 
 jest.mock('~/services/subject')
 jest.mock('~/utils/getMatchOptions')
+jest.mock('~/utils/parseQueryInt')
 
 describe('Subject controller', () => {
-  const mockReqRes = (params = {}) => {
-    const req = { params }
+  const mockReqRes = (params = {}, query = {}) => {
+    const req = { params, query }
     const res = {
       status: jest.fn().mockReturnThis(),
       json: jest.fn()
@@ -61,6 +62,22 @@ describe('Subject controller', () => {
           category: mockSubject.category
         })
       )
+    })
+  })
+
+  describe('GET /subjects', () => {
+    it('should return 200 with subjects and count if pagination is valid', async () => {
+      const { req, res } = mockReqRes({}, { skip: '0', limit: '10' })
+      const mockData = { items: [{ name: 'Math' }, { name: 'Science' }], count: 2 }
+
+      parseQueryInt.mockImplementation((value, defaultValue) => parseInt(value, 10) || defaultValue)
+      subjectService.getSubjects.mockResolvedValue(mockData)
+
+      await getSubjects(req, res)
+
+      expect(subjectService.getSubjects).toHaveBeenCalledWith(0, 10)
+      expect(res.status).toHaveBeenCalledWith(200)
+      expect(res.json).toHaveBeenCalledWith(mockData)
     })
   })
 })
