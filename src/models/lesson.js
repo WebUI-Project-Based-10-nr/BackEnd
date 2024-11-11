@@ -1,6 +1,6 @@
 const { Schema, model } = require('mongoose')
 const { enums } = require('~/consts/validation')
-const { LESSON, USER, RESOURCES_CATEGORY } = require('~/consts/models')
+const { LESSON, USER, RESOURCES_CATEGORY, ATTACHMENT } = require('~/consts/models')
 const { FIELD_CANNOT_BE_EMPTY, FIELD_CANNOT_BE_LONGER, FIELD_CANNOT_BE_SHORTER } = require('~/consts/errors')
 
 const lessonSchema = new Schema(
