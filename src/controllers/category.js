@@ -25,10 +25,17 @@ const addCategory = async (req, res) => {
 }
 
 const getCategoryById = async (req, res) => {
-  const { id } = req.params
-  const category = await categoryService.getCategoryById(id)
+  const { id } = req.params;
+  try {
+    const category = await categoryService.getCategoryById(id);
+    res.status(200).json(category);
+  } catch (error) {
+    if (error.status === 404) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
 
-  res.status(200).json(category)
+    res.status(500).json({ error: 'An error occurred' });
+  }
 }
 
 module.exports = {
