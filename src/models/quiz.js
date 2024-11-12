@@ -19,12 +19,19 @@ const quizSchema = new Schema({
   },
   description: {
     type: String,
-    maxLength: [150, FIELD_CANNOT_BE_LONGER('description', 150)]
+    maxLength: [150, FIELD_CANNOT_BE_LONGER('description', 150)],
+    trim: true
   },
   items: {
     type: [Schema.Types.ObjectId],
     ref: QUESTION,
-    required: [true, FIELD_CANNOT_BE_EMPTY('items')]
+    required: [true, FIELD_CANNOT_BE_EMPTY('items')],
+    validate: {
+      validator: function (value) {
+        return value && value.length > 0
+      },
+      message: FIELD_CANNOT_BE_EMPTY('items')
+    }
   },
   author: {
     type: Schema.Types.ObjectId,
