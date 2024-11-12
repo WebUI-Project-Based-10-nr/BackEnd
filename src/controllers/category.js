@@ -24,7 +24,15 @@ const addCategory = async (req, res) => {
   res.status(200).json(newCategory)
 }
 
+const getCategoryById = async (req, res) => {
+  const { id } = req.params
+  const category = await categoryService.getCategoryById(id)
+
+  res.status(200).json(category)
+}
+
 module.exports = {
+  getCategoryById,
   getCategoriesNames,
   addCategory,
   getCategories

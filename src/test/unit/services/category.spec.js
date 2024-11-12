@@ -67,4 +67,26 @@ describe('Category Service', () => {
       expect(Category.find).toHaveBeenCalled()
     })
   })
+
+  describe('getCategoryById', () => {
+    it('should return the correct category when one exist', async () => {
+      const mockCategory = { _id: '1', name: 'Category 1' }
+      Category.findById.mockResolvedValue(mockCategory)
+
+      setupMockCategoriesWithExec(mockCategory)
+
+      const result = await categoryService.getCategoryById('1')
+
+      expect(Category.findById).toHaveBeenCalledWith('1')
+      expect(result).toEqual(mockCategory)
+    })
+
+    it('should throw a not found error when category does not exist', async () => {
+      const notFoundError = new Error('Not Found')
+      Category.findById.mockRejectedValue(notFoundError)
+
+      await expect(categoryService.getCategoryById('1')).rejects.toThrow('Not Found')
+      expect(Category.findById).toHaveBeenCalledWith('1')
+    })
+  })
 })

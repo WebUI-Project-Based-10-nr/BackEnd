@@ -1,11 +1,11 @@
 const categoryService = require('~/services/category')
-const { getCategoriesNames } = require('~/controllers/category')
 const { serverInit, stopServer } = require("~/test/setup");
 const jwt = require("jsonwebtoken");
 const TokenService = require("~/services/token");
 const dbHandler = require("~/test/dbHandler");
 const mongoose = require("mongoose");
 const Category = require('~/models/category');
+const { getCategoriesNames, getCategoryById } = require('~/controllers/category')
 
 
 describe('Category controller', () => {
@@ -93,3 +93,32 @@ describe('Category controller', () => {
     });
   });
 });
+
+describe('getCategoryById controller', () => {
+  it('should return a category by id', async () => {
+    const mockCategory = { id: '1', name: 'Category 1', description: 'Description of Category 1' }
+    categoryService.getCategoryById.mockResolvedValue(mockCategory)
+
+    const req = { params: { id: '1' } }
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() }
+
+    await getCategoryById(req, res)
+
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalledWith(mockCategory)
+    expect(categoryService.getCategoryById).toHaveBeenCalledWith('1')
+  })
+
+  it('should return 404 if category not found', async () => {
+    categoryService.getCategoryById.mockResolvedValue(null)
+
+    const req = { params: { id: '999' } }
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() }
+
+    await getCategoryById(req, res)
+
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalledWith(null)
+    expect(categoryService.getCategoryById).toHaveBeenCalledWith('999')
+  })
+})
