@@ -1,14 +1,10 @@
 const { Schema, model } = require('mongoose')
+const { enums } = require('~/consts/validation')
 const { LESSON, USER, RESOURCES_CATEGORY, ATTACHMENT } = require('~/consts/models')
 const { FIELD_CANNOT_BE_EMPTY, FIELD_CANNOT_BE_LONGER, FIELD_CANNOT_BE_SHORTER } = require('~/consts/errors')
 
 const lessonSchema = new Schema(
   {
-    author: {
-      type: Schema.Types.ObjectId,
-      ref: USER,
-      required: [true, FIELD_CANNOT_BE_EMPTY('author')]
-    },
     title: {
       type: String,
       required: [true, FIELD_CANNOT_BE_EMPTY('title')],
@@ -19,17 +15,27 @@ const lessonSchema = new Schema(
       type: String,
       required: [true, FIELD_CANNOT_BE_EMPTY('description')],
       minLength: [1, FIELD_CANNOT_BE_SHORTER('description', 1)],
-      maxLength: [100, FIELD_CANNOT_BE_LONGER('description', 100)]
+      maxLength: [1000, FIELD_CANNOT_BE_LONGER('description', 1000)]
     },
     content: {
       type: String,
       required: [true, FIELD_CANNOT_BE_EMPTY('content')],
       minLength: [50, FIELD_CANNOT_BE_SHORTER('content', 50)]
     },
+    author: {
+      type: Schema.Types.ObjectId,
+      ref: USER,
+      required: [true, FIELD_CANNOT_BE_EMPTY('author')]
+    },
     category: {
       type: Schema.Types.ObjectId,
       ref: RESOURCES_CATEGORY,
       default: null
+    },
+    resourceType: {
+      type: String,
+      enum: enums.RESOURCES_TYPES_ENUM,
+      default: enums.RESOURCES_TYPES_ENUM[0]
     },
     attachments: {
       type: [Schema.Types.ObjectId],
