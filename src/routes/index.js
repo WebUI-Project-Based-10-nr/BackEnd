@@ -11,6 +11,7 @@ const resourcesCategory = require('~/routes/resourcesCategory')
 const offer = require('~/routes/offer')
 const categories = require('~/routes/category')
 const subject = require('~/routes/subject')
+const quiz = require('~/routes/quiz')
 
 router.use('/auth', auth)
 router.use('/users', user)
@@ -23,5 +24,6 @@ router.use('/resources-categories', resourcesCategory)
 router.use('/offers', offer)
 router.use('/categories', categories)
 router.use('/subjects', subject)
+router.use('/quizzes', quiz)
 
 module.exports = router
