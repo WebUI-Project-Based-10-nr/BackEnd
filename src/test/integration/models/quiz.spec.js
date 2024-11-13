@@ -4,7 +4,7 @@ const {
   enums: { RESOURCES_TYPES_ENUM }
 } = require('~/consts/validation')
 
-describe.only('Quiz', () => {
+describe('Quiz', () => {
   beforeAll(async () => {
     await dbHandler.connect()
   })
