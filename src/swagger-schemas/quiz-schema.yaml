@@ -1,0 +1,40 @@
+components:
+  schemas:
+    Quiz:
+      type: object
+      properties:
+        title:
+          type: string
+          example: 'Title of Quiz'
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+          example: 'A quiz description'
+          maxLength: 150
+        items:
+          type: array
+          items:
+            type: string
+            format: objectId
+          example: ['60d21b4667d0d8992e610c85', '60d21b4667d0d8992e610c86']
+        author:
+          type: string
+          format: objectId
+          example: '60d21b4667d0d8992e610c84'
+        category:
+          type: string
+          format: objectId
+          example: '60d21b4667d0d8992e610c84'
+        resourceType:
+          type: string
+          enum:
+            - lessons
+            - attachments
+            - questions
+            - quizzes
+          default: 'quizzes'
+      required:
+        - title
+        - items
+        - author
