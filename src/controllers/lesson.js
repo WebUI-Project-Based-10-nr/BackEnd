@@ -41,9 +41,9 @@ class LessonController {
 
   async createLesson(req, res) {
     const author = req.user.id
-    const { title, description, category, attachments, text } = req.body
+    const { title, description, category, attachments, content } = req.body
 
-    const newLesson = await lessonService.createLesson(author, title, description, category, text, attachments)
+    const newLesson = await lessonService.createLesson(author, title, description, category, content, attachments)
     res.status(201).json(newLesson)
   }
 

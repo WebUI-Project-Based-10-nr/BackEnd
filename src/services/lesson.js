@@ -9,6 +9,7 @@ class LessonService {
       .skip(skip)
       .limit(limit)
       .lean()
+      .populate({ path: 'category', select: '_id name' })
       .exec()
 
     const totalCount = await Lesson.countDocuments(match)
@@ -30,12 +31,12 @@ class LessonService {
     return lesson
   }
 
-  async createLesson(author, title, description, category, text, attachments) {
+  async createLesson(author, title, description, category, content, attachments) {
     return await Lesson.create({
       author,
       title,
       description,
-      text,
+      content,
       category,
       attachments
     })
@@ -65,7 +66,7 @@ class LessonService {
       throw createForbiddenError()
     }
 
-    const allowedUpdates = ['title', 'description', 'text', 'category']
+    const allowedUpdates = ['title', 'description', 'content', 'category']
 
     for (const key of allowedUpdates) {
       if (key in data) {
