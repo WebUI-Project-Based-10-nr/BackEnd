@@ -4,11 +4,10 @@ const quizService = require('~/services/quiz')
 class QuizController {
   async getQuizById(req, res) {
     const quizId = req.params.id
-    const author = req.user.id
 
     isObjectIdValid(quizId)
 
-    const quiz = await quizService.getQuizById(quizId, author)
+    const quiz = await quizService.getQuizById(quizId)
     res.json(quiz)
   }
 }

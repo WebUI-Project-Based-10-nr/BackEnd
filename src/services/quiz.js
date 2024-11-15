@@ -1,16 +1,12 @@
 const Quiz = require('~/models/quiz')
-const { createForbiddenError, createNotFoundError } = require('~/utils/errorsHelper')
+const { createNotFoundError } = require('~/utils/errorsHelper')
 
 class QuizService {
-  async getQuizById(quizId, author) {
-    const quiz = Quiz.findById(quizId)
+  async getQuizById(quizId) {
+    const quiz = await Quiz.findById(quizId)
 
     if (!quiz) {
       throw createNotFoundError()
-    }
-
-    if (quiz.author.toString() !== author) {
-      throw createForbiddenError()
     }
 
     return quiz
