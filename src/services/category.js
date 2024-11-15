@@ -13,6 +13,12 @@ const categoryService = {
   getCategoriesNames: async () => {
     return Category.find({}, 'name')
   },
+
+  addCategory: async (data) => {
+    let { name, appearance } = data
+    return await Category.create({ name, appearance })
+  },
+
   getCategoryById: async (categoryId) => {
     const category = await Category.findById(categoryId)
 

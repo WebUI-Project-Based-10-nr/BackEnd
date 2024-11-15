@@ -16,15 +16,31 @@ const getCategoriesNames = async (_req, res) => {
   res.status(200).json(categoriesNames)
 }
 
-const getCategoryById = async (req, res) => {
-  const { id } = req.params
-  const category = await categoryService.getCategoryById(id)
+const addCategory = async (req, res) => {
+  const data = req.body
 
-  res.status(200).json(category)
+  const newCategory = await categoryService.addCategory(data)
+
+  res.status(200).json(newCategory)
+}
+
+const getCategoryById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const category = await categoryService.getCategoryById(id);
+    res.status(200).json(category);
+  } catch (error) {
+    if (error.status === 404) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+
+    res.status(500).json({ error: 'An error occurred' });
+  }
 }
 
 module.exports = {
-  getCategories,
+  getCategoryById,
   getCategoriesNames,
-  getCategoryById
+  addCategory,
+  getCategories
 }
